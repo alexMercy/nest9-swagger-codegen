@@ -1,37 +1,21 @@
-name: Publish to npm
-
+name: Publish Package to npmjs
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to release'
-        required: true
-
-jobs:
   release:
+    types: [published]
+jobs:
+  build:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org/'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Bump version and tag
-        run: |
-          npm version ${{ github.event.inputs.version }} --no-git-tag-version
-          git commit -am "Bump version to ${{ github.event.inputs.version }}"
-          git tag v${{ github.event.inputs.version }}
-          git push origin main --tags
-
-      - name: Publish to npm
-        run: npm publish
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm i
+      - run: npm run build
+      - run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
