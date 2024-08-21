@@ -1,0 +1,69 @@
+import * as fs from 'fs-extra';
+import * as path from "path";
+import { SwaggerApi } from 'src/core/swagger.types/documentSwagger.type';
+import { Operation } from 'src/core/swagger.types/paths.types';
+import * as yaml from 'yaml';
+import { dereferenceWithRefNames } from './core/parser';
+import { ControllerConfig, getPaths, Tcontroller } from './templates/controller';
+import { createDtos } from './templates/dto';
+import { generateTsFile, getArgsOpts } from './utils';
+
+
+const fileContent = fs.readFileSync('../swagger.yaml', 'utf8');
+const swaggerDoc: any = yaml.parse(fileContent);
+
+const getSharedDtos = (api: SwaggerApi, imports: any) => {
+  const importDtos = imports.map((d: any) => [...d.importDtos]).flat()
+  const sharedDtos = api.components?.schemas ? Object.keys(api.components?.schemas).filter(title => !importDtos.includes(title)) : []
+
+  return sharedDtos
+}
+
+const generateControllers = (api: SwaggerApi, rootPath: string) => {
+
+  const controllersCfg: ControllerConfig[] = []
+
+  const imports: any[] = []
+
+  Object.entries(api.paths).forEach(([route, methods]) => {
+    const serviceName = Object.values(methods)[0].tags?.[0] || ''
+    Object.entries(methods).forEach(([method, data]:[string, Operation]) => {
+      getPaths(route, method, data, controllersCfg, serviceName)
+    })
+  })
+
+  controllersCfg.forEach((cfg) => {
+    const [controller, importDtos] = Tcontroller(cfg)
+    const {serviceName} = cfg
+    generateTsFile(rootPath, serviceName, 'controller', controller)
+    imports.push({serviceName, importDtos})
+  })
+  return imports
+}
+
+const generateApi = (api: SwaggerApi) => {
+  //TODO: delete after compelete -------
+    const filePath = path.join("./", 'swagger.json')
+    fs.writeFileSync(filePath, JSON.stringify( api));
+  //----------------------------------
+  
+  
+    const args = process.argv.slice(2);
+  
+    const options = getArgsOpts(args)
+    const rootPath = path.join(options.output || './', `services`)
+  
+    fs.ensureDirSync(rootPath)
+  
+    
+    const imports = generateControllers(api, rootPath)
+    const sharedDtos = getSharedDtos(api, imports);
+  
+    imports.forEach(({serviceName, importDtos}) => createDtos(api, rootPath, serviceName, importDtos))
+    createDtos(api, rootPath, 'shared', sharedDtos)
+  
+    console.log('Code generated successfully');
+    
+  }
+
+dereferenceWithRefNames(swaggerDoc).then(generateApi)
