@@ -4,10 +4,10 @@ import { SwaggerApi } from '@swaggertypes/documentSwagger.type';
 import { Operation } from '@swaggertypes/paths.types';
 import { createDtos } from '@templates/dto';
 import { generateTsFile, options } from '@utils';
+import { dereferenceWithRefNames } from 'core/parser';
 import * as fs from 'fs-extra';
 import * as path from "path";
-import { dereferenceWithRefNames } from 'src/core/parser';
-import { ControllerConfig, getPaths, Tcontroller } from 'src/templates/controller';
+import { ControllerConfig, getPaths, Tcontroller } from 'templates/controller';
 import * as yaml from 'yaml';
 
 const fileContent = fs.readFileSync(options.input || './swagger.yaml', 'utf8');
