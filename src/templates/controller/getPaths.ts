@@ -1,5 +1,5 @@
-import { paramTypes } from "src/utils"
 import { Operation } from "../../core/swagger.types/paths.types"
+import { paramTypes } from "../../utils"
 import { ControllerConfig, type ControllerPath } from "./controller.template"
 
 

@@ -1,6 +1,6 @@
 import { argsOptions } from "./constants"
 
-export const getArgsOpts = (args) => {
+export const getArgsOpts = (args: string[]) => {
   const options: any = {}
   const isOutput = args.findIndex(arg => arg === argsOptions.OUTPUT || arg === argsOptions.OUTPUT_SHORT)
 

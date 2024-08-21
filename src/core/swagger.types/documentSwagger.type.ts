@@ -1,5 +1,5 @@
 import { Paths } from "./paths.types";
-import { Schema } from "swagger-schema-official";
+import { Schema } from "./shared.types";
 
 
 
@@ -21,7 +21,7 @@ export type SwaggerApi = {
   jsonSchemaDialect?: string;
   servers?: any[];
   components : {
-    schemas: Schema[]
+    schemas: Record<string,Schema>
   }
 }
 

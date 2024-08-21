@@ -19,22 +19,22 @@ export type $Ref = {
 export type RefSchema = XOR<$Ref, Schema>
 
 
-type Schema = XOR<ArraySchema, XOR<ObjectSchema, NonArraySchema>>
+export type Schema = XOR<ArraySchema, XOR<ObjectSchema, NonArraySchema>>
 
 type NonArraySchemaType = 'boolean' | 'number' | 'string' | 'integer';
 type ArraySchemaType = 'array';
 type ObjectSchemaType = 'object';
 
 
-interface ArraySchema extends BaseSchema {
+export interface ArraySchema extends BaseSchema {
   type: ArraySchemaType;
   items: RefSchema;
 }
-interface NonArraySchema extends BaseSchema {
+export interface NonArraySchema extends BaseSchema {
   type: NonArraySchemaType;
 }
 
-interface ObjectSchema extends Modify<BaseSchema, {
+export interface ObjectSchema extends Modify<BaseSchema, {
   properties: {[name: string]: RefSchema};
 }> {
   type: ObjectSchemaType;

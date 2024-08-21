@@ -89,7 +89,7 @@ const addPath = ({method, path, pathParams, queryParams, serviceName, body, impo
 
 
 
-export const Tcontroller = ({serviceName, paths}: {serviceName: string, paths: ControllerPath[]}) =>  {
+export const Tcontroller = ({serviceName, paths}: {serviceName: string, paths: ControllerPath[]}): [string, Set<any>] =>  {
     const imports = {
         commons: new Set(),
         dtos: new Set()

@@ -43,8 +43,8 @@ const generateControllers = (api: SwaggerApi, rootPath: string) => {
 
 const generateApi = (api: SwaggerApi) => {
   //TODO: delete after compelete -------
-    const filePath = path.join("./", 'swagger.json')
-    fs.writeFileSync(filePath, JSON.stringify( api));
+    // const filePath = path.join("./", 'swagger.json')
+    // fs.writeFileSync(filePath, JSON.stringify( api));
   //----------------------------------
   
   

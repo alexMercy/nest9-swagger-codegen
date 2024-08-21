@@ -2,7 +2,6 @@ import * as _ from 'lodash'
 import { generateTsFile } from '../../utils'
 import { allOfDereference } from "./allOfdereference"
 
-const sharedDtos = []
 const getEnums = (enums) => {
 
   return enums.map(([title, _enum]) => {
@@ -67,12 +66,6 @@ const getProps = (data, enums, imports) => {
   return Object.entries(properties).map(([title, data]) => getProp(title, data, required, enums, imports))}
 
 
-
-/**
- * 
- * @param {string} title 
- * @param {*} data 
- */
 const createDto = (title, data, enums, imports) => {
 
   return `
@@ -81,16 +74,9 @@ const createDto = (title, data, enums, imports) => {
   }` 
 }
 
-
-/**
- * @param {import('openapi-types').OpenAPI.Document} api 
- * @param {string} serviceName 
- * @param {string} rootPath 
- * @param {Set<string>} dtos 
- */
 export const createDtos = (api, rootPath, serviceName, dtos) => {
 
-  const enums = []
+  const enums: string[] = []
 
 
   const filteredComponents = [...dtos].map(dto => ([dto, allOfDereference(api.components.schemas[dto])]))
