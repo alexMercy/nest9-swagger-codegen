@@ -1,15 +1,16 @@
+#!/usr/bin/env node
+
+import { SwaggerApi } from '@swaggertypes/documentSwagger.type';
+import { Operation } from '@swaggertypes/paths.types';
+import { createDtos } from '@templates/dto';
+import { generateTsFile, options } from '@utils';
 import * as fs from 'fs-extra';
 import * as path from "path";
-import { SwaggerApi } from 'src/core/swagger.types/documentSwagger.type';
-import { Operation } from 'src/core/swagger.types/paths.types';
+import { dereferenceWithRefNames } from 'src/core/parser';
+import { ControllerConfig, getPaths, Tcontroller } from 'src/templates/controller';
 import * as yaml from 'yaml';
-import { dereferenceWithRefNames } from './core/parser';
-import { ControllerConfig, getPaths, Tcontroller } from './templates/controller';
-import { createDtos } from './templates/dto';
-import { generateTsFile, getArgsOpts } from './utils';
 
-
-const fileContent = fs.readFileSync('../swagger.yaml', 'utf8');
+const fileContent = fs.readFileSync(options.input || './swagger.yaml', 'utf8');
 const swaggerDoc: any = yaml.parse(fileContent);
 
 const getSharedDtos = (api: SwaggerApi, imports: any) => {
@@ -48,11 +49,9 @@ const generateApi = (api: SwaggerApi) => {
   //----------------------------------
   
   
-    const args = process.argv.slice(2);
+    
   
-    const options = getArgsOpts(args)
     const rootPath = path.join(options.output || './', `services`)
-  
     fs.ensureDirSync(rootPath)
   
     

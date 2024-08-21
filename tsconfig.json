@@ -10,6 +10,14 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@swaggertypes/*": ["src/core/swagger.types/*"],
+      "@templates/*": ["src/templates/*"],
+      "@utils/*": ["src/utils/*"],
+      "@utils": ["src/utils"],
+
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,

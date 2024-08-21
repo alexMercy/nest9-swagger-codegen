@@ -1,5 +1,5 @@
+import { SwaggerApi } from "@swaggertypes/documentSwagger.type";
 import $RefParser, { type JSONSchema } from "json-schema-ref-parser";
-import { SwaggerApi } from "src/core/swagger.types/documentSwagger.type";
 
 
 export type JSONSchemaWithOriginalRef = JSONSchema & {

@@ -1,6 +1,6 @@
 
+import { methodNames } from '@utils/constants';
 import * as _ from 'lodash';
-import { methodNames } from '../../utils';
 
 
 export interface ControllerConfig {

@@ -15,4 +15,7 @@ export const paramTypes = Object.freeze({
 export const argsOptions = Object.freeze({
   OUTPUT: '--output',
   OUTPUT_SHORT: '-o',
+  INPUT: '--input',
+  INPUT_SHORT: '-i',
+
 })

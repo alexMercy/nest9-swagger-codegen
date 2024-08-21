@@ -1,4 +1,4 @@
-import { ObjectSchema, Schema } from "../../core/swagger.types/shared.types";
+import { ObjectSchema, Schema } from "@swaggertypes/shared.types";
 
 export const allOfDereference = (component: Schema) => {
   if(!component.allOf) return component

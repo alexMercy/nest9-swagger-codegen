@@ -1,5 +1,5 @@
+import { generateTsFile } from '@utils/generateTsFile'
 import * as _ from 'lodash'
-import { generateTsFile } from '../../utils'
 import { allOfDereference } from "./allOfdereference"
 
 const getEnums = (enums) => {
