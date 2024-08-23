@@ -6,7 +6,6 @@ export const methodNames = Object.freeze({
   DELETE: 'delete'
 })
 
-
 export const paramTypes = Object.freeze({
   PATH: 'path',
   QUERY: 'query'
@@ -17,5 +16,10 @@ export const argsOptions = Object.freeze({
   OUTPUT_SHORT: '-o',
   INPUT: '--input',
   INPUT_SHORT: '-i',
-
+  GENERATE_OPTIONS: '--gen-options',
+  GENERATE_OPTIONS_SHORT: '-g',
 })
+
+export const serviceOptionName = 'service'
+export const controllerOptionName = 'controller'
+export const generateOptionExpectedValues = [serviceOptionName]
