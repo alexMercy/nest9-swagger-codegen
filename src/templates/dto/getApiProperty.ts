@@ -34,10 +34,7 @@ function plainToProp(data: any, keys: typeof ApiProperties) {
 
 
 export const getApiProperties = (data: any): string => {
-  // fs.ensureDir('./abobs')
-  // const filePath = path.join("./abobs", `${data.title}.json`)
-  // fs.writeFileSync(filePath, JSON.stringify( data));
-
+  
   const apiPlainedProps = plainToProp(data, ApiProperties)
 
   
