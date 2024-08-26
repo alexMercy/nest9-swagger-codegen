@@ -1,3 +1,4 @@
+import { getApiProperties } from '@templates/dto/getApiProperty'
 import { generateTsFile } from '@utils/generateTsFile'
 import * as _ from 'lodash'
 import { allOfDereference } from "./allOfdereference"
@@ -49,11 +50,16 @@ const getType = (data, enums, title, imports) => {
 }
 
 
-const getProp = (title, data, requireds, enums, imports) => {
+const getProp = (title, data, requireds, enums, imports: Set<string>) => {
 
   const required = requireds.includes(title) ? '' : '?'
 
+  const apiProperty = getApiProperties(data)
+  if(apiProperty) imports.add(`import { ApiProperty } from '@nestjs/swagger'`)
+
+
   return `
+  ${apiProperty}
   ${title}${required}: ${getType(data, enums, title, imports)}`
 }
 
