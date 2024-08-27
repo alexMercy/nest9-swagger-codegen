@@ -3,7 +3,7 @@
 import { SwaggerApi } from '@swaggertypes/documentSwagger.type';
 import { Operation } from '@swaggertypes/paths.types';
 import { createDtos } from '@templates/dto';
-import { generateTsFile, options, controllerOptionName, serviceOptionName } from '@utils';
+import { generateTsFile, options, controllerOptionName, serviceOptionName, draftSuffix } from '@utils';
 import { dereferenceWithRefNames } from 'core/parser';
 import * as fs from 'fs-extra';
 import * as path from "path";
@@ -42,7 +42,7 @@ const generateControllers = (api: SwaggerApi, rootPath: string) => {
 
     if (options.generateOpts?.includes(serviceOptionName)) {
       const service = Tservice(cfg)
-      generateTsFile(rootPath, serviceName, serviceOptionName, service)
+      generateTsFile(rootPath, serviceName, serviceOptionName + draftSuffix, service)
     }
   })
   return imports

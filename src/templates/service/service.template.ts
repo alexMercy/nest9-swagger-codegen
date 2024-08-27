@@ -12,19 +12,20 @@ const getImportsAndClass = (serviceName: string, imports: any) => {
 
     const cServiceName = _.capitalize(serviceName)
 
-    // const commonsImports = [...imports.commons].join(', ')
-    // const dtosImports = [...imports.dtos].join(', ')
+    const dtosImports = [...imports.dtos].join(', ')
+    const entitiesImports = [...imports.entities].join(', ')
 
     return `
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 // import { InjectRepository } from '@nestjs/typeorm'
-// import { randomUUID, UUID } from 'crypto'
 
-// import {
-//   _Category,
-//   Category,
-//   CategoryBody,
-// } from 'src/services/category/category.entity'
+import {
+${dtosImports}
+} from './${serviceName}.dto'
+
+//import {
+//${entitiesImports}
+//} from './${serviceName}.entity'
 // import { Repository } from 'typeorm'
 
 @Injectable()
@@ -38,29 +39,47 @@ export class ${cServiceName}Service {
 }
 
 
-const addServiceOperation = ({ method, pathParams, queryParams, body, imports }: addServiceOperationProps) => {
+const addServiceOperation = ({ method, pathParams, queryParams, body, returnType, imports }: addServiceOperationProps) => {
 
-    //  imports.commons.add(_.capitalize(method))
+    if (body) {
+        imports.dtos.add(body)
+    }
+
+    if (returnType) {
+        imports.dtos.add(_.capitalize(returnType.includes('[]') ? returnType.slice(0, returnType.length - 2) : returnType))
+    }
 
     const methodName = `${methodNames[method.toUpperCase() as keyof typeof methodNames]}${pathParams ? `By${pathParams.map(_.capitalize).join()}` : ''}`
 
-    const pathParamsArgs = pathParams?.map(param => `${param}: string`).join(', ') || ''
-    const queryParamsArgs = queryParams?.map(param => `${param}: string`).join(', ') || ''
+    const pathParamsArgs = pathParams?.map(param => `${param}: string`).join(', ') ?? ''
+    const queryParamsArgs = queryParams?.map(param => `${param}: string`).join(', ') ?? ''
     const bodyParamsArgs = body ? `body: ${body}` : ''
 
     const argsParams = _.compact([pathParamsArgs, queryParamsArgs, bodyParamsArgs]).join(', ')
 
+    let returnObj: string
+    if (returnType?.includes('[]')) {
+        returnObj = '[]'
+    } else if (returnType) {
+        returnObj = `new ${returnType}()`
+    }
+    else {
+        returnObj = ''
+    }
+
     return `
-        async ${methodName}(${argsParams}) {
+        async ${methodName}(${argsParams}): Promise<${returnType ?? 'void'}> {
             // template generated method
             // update it as needed
+            return new Promise( (resolve, reject) => { return ${returnObj} } );
         }`
 }
 
 export const Tservice = ({ serviceName, paths }: { serviceName: string, paths: ControllerPath[] }): string => {
     const imports = {
         commons: new Set(),
-        dtos: new Set()
+        dtos: new Set(),
+        entities: new Set(),
     }
 
     const methodSorts = ['get', 'post', 'put', 'delete']

@@ -22,4 +22,5 @@ export const argsOptions = Object.freeze({
 
 export const serviceOptionName = 'service'
 export const controllerOptionName = 'controller'
+export const draftSuffix = '.draft'
 export const generateOptionExpectedValues = [serviceOptionName]
