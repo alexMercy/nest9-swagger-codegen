@@ -3,7 +3,7 @@ import * as path from 'path'
 import * as prettier from 'prettier'
 
 const defaultPrettierOptions: prettier.Options = {
-    trailingComma: 'es5',
+    trailingComma: 'all',
     tabWidth: 4,
     semi: false,
     singleQuote: true,
@@ -13,7 +13,7 @@ export const generateTsFile = async (
     rootPath: string,
     serviceName: string,
     type: string,
-    data: string
+    data: string,
 ) => {
     const prettierConfigPath = await prettier.resolveConfigFile()
     const prettierOptions = prettierConfigPath
@@ -28,6 +28,6 @@ export const generateTsFile = async (
     fs.ensureDirSync(servicePath)
     fs.writeFileSync(
         path.join(servicePath, `${serviceName}.${type}.ts`),
-        formattedContent
+        formattedContent,
     )
 }
