@@ -5,12 +5,11 @@ export const getEnums = (enums: Record<string, any>) => {
       if(typeof value === 'number' || typeof value === 'boolean') {
         return `  K_${value} = ${value},`
       }
-      if(typeof value === 'string')
       return `  ${value.toUpperCase()} = "${value}",`
     }
 
     return `export enum ${title} {
-${_enum.map(value => getValue(value)).join('\n')}
+${_enum.map((value: any) => getValue(value)).join('\n')}
 }`
   }).join('\n\n')
 }

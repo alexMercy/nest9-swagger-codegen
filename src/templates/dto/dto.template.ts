@@ -94,7 +94,7 @@ class DtoFileFactory {
 
 
   private getType = (data: any, title: string) => {
-  
+    if(!data.type) throw new Error(`No type in field ${title}`)
     if(data.type === 'array') {
       const nestedType = data.items.type
   
