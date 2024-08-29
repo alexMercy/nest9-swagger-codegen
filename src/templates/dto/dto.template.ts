@@ -5,6 +5,7 @@ import {
     plainToValidatorProperties,
     ValidatorsProps,
 } from '@templates/dto/plainToProp'
+import { suffixes } from '@utils/constants'
 import { generateTsFile } from '@utils/generateTsFile'
 import { getEnums } from '@utils/getEnums'
 import { getFileImports } from '@utils/getFileImports'
@@ -146,7 +147,12 @@ class DtoFileFactory {
             this.dtos.join('\n\n'),
         ]).join('\n\n')
 
-        generateTsFile(this.rootPath, this.serviceName, 'dto', tDtoStructure)
+        generateTsFile(
+            this.rootPath,
+            this.serviceName,
+            suffixes.DTO,
+            tDtoStructure,
+        )
     }
 }
 

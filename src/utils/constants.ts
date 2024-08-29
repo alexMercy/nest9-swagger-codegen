@@ -27,6 +27,7 @@ export const generateOptionNames = Object.freeze({
 export const suffixes = Object.freeze({
     SERVICE: 'service',
     CONTROLLER: 'controller',
+    DTO: 'dto',
     DRAFT: 'draft',
 })
 
