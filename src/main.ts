@@ -3,6 +3,7 @@
 import { SwaggerApi } from '@swaggertypes/documentSwagger.type';
 import { Operation } from '@swaggertypes/paths.types';
 import { createDtos } from '@templates/dto';
+import { createEntities } from 'templates/entity/entity.template';
 import { generateTsFile, options, controllerOptionName, serviceOptionName, draftSuffix } from '@utils';
 import { dereferenceWithRefNames } from 'core/parser';
 import * as fs from 'fs-extra';
@@ -66,6 +67,8 @@ const generateApi = (api: SwaggerApi) => {
 
   imports.forEach(({ serviceName, importDtos }) => createDtos(api, rootPath, serviceName, importDtos))
   createDtos(api, rootPath, 'shared', sharedDtos)
+
+  imports.forEach(({ serviceName, importDtos }) => createEntities(api, rootPath, serviceName, importDtos))
 
   console.log('Code generated successfully');
 
