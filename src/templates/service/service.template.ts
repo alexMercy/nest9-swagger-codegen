@@ -85,7 +85,7 @@ const addServiceOperation = ({
         async ${methodName}(${argsParams}): Promise<${returnType ?? 'void'}> {
             // template generated method
             // update it as needed
-            return new Promise( (resolve, reject) => { return ${returnObj} } );
+            return new Promise( (resolve, reject) => { resolve(${returnObj}) } );
         }`
 }
 
