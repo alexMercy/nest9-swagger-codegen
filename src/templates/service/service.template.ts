@@ -1,15 +1,13 @@
-import { methodNames } from '@utils/constants';
-import { ControllerPath } from '../controller/controller.template';
-import * as _ from 'lodash';
-
+import { methodNames } from '@utils/constants'
+import { ControllerPath } from '../controller/controller.template'
+import * as _ from 'lodash'
 
 type addServiceOperationProps = ControllerPath & {
-    serviceName: string,
-    imports?: any,
+    serviceName: string
+    imports?: any
 }
 
 const getImportsAndClass = (serviceName: string, imports: any) => {
-
     const cServiceName = _.capitalize(serviceName)
 
     const dtosImports = [...imports.dtos].join(', ')
@@ -38,32 +36,48 @@ export class ${cServiceName}Service {
   `
 }
 
-
-const addServiceOperation = ({ method, pathParams, queryParams, body, returnType, imports }: addServiceOperationProps) => {
-
+const addServiceOperation = ({
+    method,
+    pathParams,
+    queryParams,
+    body,
+    returnType,
+    imports,
+}: addServiceOperationProps) => {
     if (body) {
         imports.dtos.add(body)
     }
 
     if (returnType) {
-        imports.dtos.add(_.capitalize(returnType.includes('[]') ? returnType.slice(0, returnType.length - 2) : returnType))
+        imports.dtos.add(
+            _.capitalize(
+                returnType.includes('[]')
+                    ? returnType.slice(0, returnType.length - 2)
+                    : returnType,
+            ),
+        )
     }
 
     const methodName = `${methodNames[method.toUpperCase() as keyof typeof methodNames]}${pathParams ? `By${pathParams.map(_.capitalize).join()}` : ''}`
 
-    const pathParamsArgs = pathParams?.map(param => `${param}: string`).join(', ') ?? ''
-    const queryParamsArgs = queryParams?.map(param => `${param}: string`).join(', ') ?? ''
+    const pathParamsArgs =
+        pathParams?.map((param) => `${param}: string`).join(', ') ?? ''
+    const queryParamsArgs =
+        queryParams?.map((param) => `${param}: string`).join(', ') ?? ''
     const bodyParamsArgs = body ? `body: ${body}` : ''
 
-    const argsParams = _.compact([pathParamsArgs, queryParamsArgs, bodyParamsArgs]).join(', ')
+    const argsParams = _.compact([
+        pathParamsArgs,
+        queryParamsArgs,
+        bodyParamsArgs,
+    ]).join(', ')
 
     let returnObj: string
     if (returnType?.includes('[]')) {
         returnObj = '[]'
     } else if (returnType) {
         returnObj = `new ${returnType}()`
-    }
-    else {
+    } else {
         returnObj = ''
     }
 
@@ -75,7 +89,13 @@ const addServiceOperation = ({ method, pathParams, queryParams, body, returnType
         }`
 }
 
-export const Tservice = ({ serviceName, paths }: { serviceName: string, paths: ControllerPath[] }): string => {
+export const Tservice = ({
+    serviceName,
+    paths,
+}: {
+    serviceName: string
+    paths: ControllerPath[]
+}): string => {
     const imports = {
         commons: new Set(),
         dtos: new Set(),
@@ -84,11 +104,14 @@ export const Tservice = ({ serviceName, paths }: { serviceName: string, paths: C
 
     const methodSorts = ['get', 'post', 'put', 'delete']
 
-    const tOps = paths.slice().sort((a, b) =>
-        methodSorts.indexOf(a.method) - methodSorts.indexOf(b.method)).
-        map(path =>
-            addServiceOperation({ ...path, serviceName, imports })).
-        join('\n\n')
+    const tOps = paths
+        .slice()
+        .sort(
+            (a, b) =>
+                methodSorts.indexOf(a.method) - methodSorts.indexOf(b.method),
+        )
+        .map((path) => addServiceOperation({ ...path, serviceName, imports }))
+        .join('\n\n')
 
     return `
       ${getImportsAndClass(serviceName, imports)}
