@@ -14,6 +14,7 @@ export const generateTsFile = async (
     serviceName: string,
     type: string,
     data: string,
+    folder?: string,
 ) => {
     const prettierConfigPath = await prettier.resolveConfigFile()
     const prettierOptions = prettierConfigPath
@@ -24,7 +25,7 @@ export const generateTsFile = async (
         ...prettierOptions,
         parser: 'typescript',
     })
-    const servicePath = path.join(rootPath, `${serviceName}`)
+    const servicePath = path.join(rootPath, `${folder || serviceName}`)
     fs.ensureDirSync(servicePath)
     fs.writeFileSync(
         path.join(servicePath, `${serviceName}.${type}.ts`),
