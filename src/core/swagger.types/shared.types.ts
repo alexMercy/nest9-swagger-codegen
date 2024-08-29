@@ -1,7 +1,6 @@
 export type Modify<T, R> = Omit<T, keyof R> & R
 export type XOR<T, U> = T | U extends object
-    ? (T extends object ? Omit<U, keyof T> : never) &
-          (U extends object ? Omit<T, keyof U> : never)
+    ? (T extends object ? Omit<U, keyof T> : never) & (U extends object ? Omit<T, keyof U> : never)
     : T | U
 
 export const methods = {

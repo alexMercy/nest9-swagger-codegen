@@ -10,17 +10,11 @@ export const getPaths = (
     serviceName: string,
 ) => {
     const { parameters, requestBody, responses } = data
-    const pathParams = parameters
-        ?.filter((param) => param.in === paramTypes.PATH)
-        .map(({ name }) => name)
-    const queryParams = parameters
-        ?.filter((param) => param.in === paramTypes.QUERY)
-        .map(({ name }) => name)
+    const pathParams = parameters?.filter((param) => param.in === paramTypes.PATH).map(({ name }) => name)
+    const queryParams = parameters?.filter((param) => param.in === paramTypes.QUERY).map(({ name }) => name)
     const cfg = controllersCfg.find((cfg) => cfg.serviceName === serviceName)
 
-    const returnType: any = Object.entries(responses).filter(([statusCode]) =>
-        /^2\d{2}$/.test(statusCode),
-    )[0][1]
+    const returnType: any = Object.entries(responses).filter(([statusCode]) => /^2\d{2}$/.test(statusCode))[0][1]
 
     const getReturnType = () => {
         const root = returnType?.content?.['application/json']
