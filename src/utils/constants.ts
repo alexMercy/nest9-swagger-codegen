@@ -1,4 +1,3 @@
-
 export const methodNames = Object.freeze({
     GET: 'get',
     POST: 'create',
@@ -23,6 +22,7 @@ export const argsOptions = Object.freeze({
 export const generateOptionNames = Object.freeze({
     SERVICE: 'service',
     CONTROLLER: 'controller',
+    ENTITY: 'entity',
 })
 
 export const suffixes = Object.freeze({

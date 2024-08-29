@@ -1,4 +1,4 @@
-import { allOfDereference } from '@templates/dto/allOfdereference'
+import { allOfDereference } from '@templates/lib/allOfdereference'
 import {
     classValidators,
     plainToApiProperties,

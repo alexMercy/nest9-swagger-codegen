@@ -1,13 +1,9 @@
-import { allOfDereference } from "@templates/lib/allOfdereference"
-// import { classValidators, plainToProp, ValidatorsProps } from "@templates/dto/plainToProp"
-import { generateTsFile } from "@utils/generateTsFile"
-// import { getEnums } from "@utils/getEnums"
-import { getFileImports } from "@utils/getFileImports"
-import * as _ from "lodash"
-import { title } from "process"
+import { allOfDereference } from '@templates/lib/allOfdereference'
+import { generateTsFile } from '@utils/generateTsFile'
+import { getFileImports } from '@utils/getFileImports'
+import * as _ from 'lodash'
 
 class EntityFileFactory {
-
     private enums: Record<string, any> = {}
 
     private imports: Record<string, Set<string>> = {
@@ -19,9 +15,13 @@ class EntityFileFactory {
 
     private serviceName: string
 
-    private entities: { 'title': string, 'code': string }[]
+    private entities: { title: string; code: string }[]
 
-    constructor(rootPath: string, serviceName: string, entitySchemas: [string, any][]) {
+    constructor(
+        rootPath: string,
+        serviceName: string,
+        entitySchemas: [string, any][],
+    ) {
         this.rootPath = rootPath
         this.serviceName = serviceName
         this.imports['typeorm'].add('Column')
@@ -29,17 +29,16 @@ class EntityFileFactory {
         this.imports['typeorm'].add('PrimaryGeneratedColumn')
         this.imports['@nestjs/swagger'].add('OmitType')
 
-        this.entities = entitySchemas.map(
-            ([_title, _data]) => {
-                const obj = { title: _title, code: this.createEntityClass(_title, _data) };
-                return obj;
+        this.entities = entitySchemas.map(([_title, _data]) => {
+            const obj = {
+                title: _title,
+                code: this.createEntityClass(_title, _data),
             }
-        )
+            return obj
+        })
     }
 
-
     private createEntityClass = (title: string, data: any) => {
-
         const props = this.getProps(data).join('\n')
 
         return `
@@ -57,7 +56,6 @@ class EntityFileFactory {
 `
     }
 
-
     private getProps = (data: any) => {
         const { properties, required: requireds } = data
 
@@ -73,18 +71,20 @@ class EntityFileFactory {
     }
 
     private getType = (data: any, title: string) => {
-
         if (data.type === 'array') {
             const nestedType = data.items.type
 
-            const isComplexType = nestedType === 'object' || nestedType === 'array'
+            const isComplexType =
+                nestedType === 'object' || nestedType === 'array'
 
             return `${isComplexType ? this.getType(data.items, title) : nestedType}[]`
         }
 
         if (data.type === 'object') {
             if (!data.refType)
-                throw new Error("don't use no ref object props. If you need use object prop, that create component and use him with $ref")
+                throw new Error(
+                    "don't use no ref object props. If you need use object prop, that create component and use him with $ref",
+                )
 
             return data.refType
         }
@@ -98,33 +98,44 @@ class EntityFileFactory {
         return data.type
     }
 
-
     generateEntityFiles = () => {
-
-        this.entities.forEach(entity => {
+        this.entities.forEach((entity) => {
             const fileImports = getFileImports(this.imports)
 
-            const tEntityStructure = _.compact([
-                fileImports,
-                entity.code
-            ]).join('\n\n')
+            const tEntityStructure = _.compact([fileImports, entity.code]).join(
+                '\n\n',
+            )
 
-
-            generateTsFile(this.rootPath, this.serviceName, `${entity.title.toLowerCase()}.entity.draft`, tEntityStructure)
+            generateTsFile(
+                this.rootPath,
+                this.serviceName,
+                `${entity.title.toLowerCase()}.entity.draft`,
+                tEntityStructure,
+            )
         })
     }
 }
 
+export const createEntities = (
+    api: any,
+    rootPath: string,
+    serviceName: string,
+    entities: string[],
+) => {
+    const filteredComponents: [string, any][] = entities.map((entity) => [
+        entity,
+        allOfDereference(api.components.schemas[entity]),
+    ])
 
-export const createEntities = (api: any, rootPath: string, serviceName: string, entities: Set<string>) => {
-
-    const entities_arr = Array.from(entities)
-    const filteredComponents: [string, any][] = entities_arr.map(entity => ([entity, allOfDereference(api.components.schemas[entity])]))
-
+    // @TODO probably component-arrays need to be excluded from processing. HOW??
     // const filteredObjects = _.filter(filteredComponents, [[{ 'type': 'object' }]])
     // console.log('filtered objects')
     // console.log(filteredObjects)
-    const entityClass = new EntityFileFactory(rootPath, serviceName, filteredComponents)
+    const entityClass = new EntityFileFactory(
+        rootPath,
+        serviceName,
+        filteredComponents,
+    )
 
     entityClass.generateEntityFiles()
 }
