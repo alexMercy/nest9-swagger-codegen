@@ -18,9 +18,7 @@ export interface ControllerPath {
 
 const methodSorts = ['get', 'post', 'put', 'delete']
 const methodSortFn = (paths: ControllerPath[]) =>
-    paths.sort(
-        (a, b) => methodSorts.indexOf(a.method) - methodSorts.indexOf(b.method),
-    )
+    paths.sort((a, b) => methodSorts.indexOf(a.method) - methodSorts.indexOf(b.method))
 
 class ControllerFileFactory {
     private serviceName: string
@@ -55,14 +53,7 @@ class ControllerFileFactory {
         this.generateController()
     }
 
-    private addPath = ({
-        method,
-        path,
-        pathParams,
-        queryParams,
-        body,
-        returnType,
-    }: ControllerPath) => {
+    private addPath = ({ method, path, pathParams, queryParams, body, returnType }: ControllerPath) => {
         this._imports['@nestjs/common'].add(_.capitalize(method))
         if (body) {
             this._imports['@nestjs/common'].add('Body')
@@ -70,9 +61,7 @@ class ControllerFileFactory {
         }
         if (returnType) {
             this._imports['../models'].add(
-                returnType.includes('[]')
-                    ? returnType.slice(0, returnType.length - 2)
-                    : returnType,
+                returnType.includes('[]') ? returnType.slice(0, returnType.length - 2) : returnType,
             )
         }
         if (pathParams) {
@@ -85,29 +74,15 @@ class ControllerFileFactory {
 
         const methodName = `${methodNames[method.toUpperCase() as keyof typeof methodNames]}${pathParams ? `By${pathParams.map(_.capitalize).join()}` : ''}`
 
-        const pathParamsArgs =
-            pathParams
-                ?.map((param) => `@Param('${param}') ${param}: string`)
-                .join(', ') || ''
-        const queryParamsArgs =
-            queryParams
-                ?.map((param) => `@Query('${param}') ${param}: string`)
-                .join(', ') || ''
+        const pathParamsArgs = pathParams?.map((param) => `@Param('${param}') ${param}: string`).join(', ') || ''
+        const queryParamsArgs = queryParams?.map((param) => `@Query('${param}') ${param}: string`).join(', ') || ''
         const bodyParamsArgs = body ? `@Body() body: ${body}` : ''
 
         const pathWithoutRoute = this.getPathWithoutFirstRoute(path)
 
-        const decoratorParams = pathWithoutRoute
-            ? `'${pathWithoutRoute.replace(/{(\w+)}/g, ':$1')}'`
-            : ''
-        const argsParams = _.compact([
-            pathParamsArgs,
-            queryParamsArgs,
-            bodyParamsArgs,
-        ]).join(', ')
-        const serviceParams = _.compact(
-            [pathParams, queryParams, body ? 'body' : ''].flat(),
-        ).join(', ')
+        const decoratorParams = pathWithoutRoute ? `'${pathWithoutRoute.replace(/{(\w+)}/g, ':$1')}'` : ''
+        const argsParams = _.compact([pathParamsArgs, queryParamsArgs, bodyParamsArgs]).join(', ')
+        const serviceParams = _.compact([pathParams, queryParams, body ? 'body' : ''].flat()).join(', ')
 
         return `    @${_.capitalize(method)}(${decoratorParams})
         ${methodName}(${argsParams}): Promise<${returnType || 'void'}> {
@@ -148,24 +123,13 @@ class ControllerFileFactory {
     generateControllerFile() {
         const fileImports = getFileImports(this.imports)
 
-        const tDtoStructure = _.compact([
-            fileImports,
-            this.controllerFile,
-        ]).join('\n\n')
+        const tDtoStructure = _.compact([fileImports, this.controllerFile]).join('\n\n')
 
-        generateTsFile(
-            this.rootPath,
-            this.serviceName,
-            'controller',
-            tDtoStructure,
-        )
+        generateTsFile(this.rootPath, this.serviceName, 'controller', tDtoStructure)
     }
 }
 
-export const createControllers = (
-    config: ControllerConfig,
-    rootPath: string,
-) => {
+export const createControllers = (config: ControllerConfig, rootPath: string) => {
     const controller = new ControllerFileFactory(config, rootPath)
     controller.generateControllerFile()
     return controller.imports['../models']

@@ -22,10 +22,7 @@ const ApiProperties = [
 
 export type ValidatorsProps = (typeof ValidatorsPropsArray)[number]
 
-export const classValidators: Record<
-    ValidatorsProps,
-    (...args: any) => string
-> = {
+export const classValidators: Record<ValidatorsProps, (...args: any) => string> = {
     nullable: () => `@IsEmpty()`,
     format: (type: any) => `@IsEmpty()`, //TODO: rewrite
     pattern: (regexp: string) => `@Mathes(new RegExp('${regexp}'))`, //TODO: rewrite

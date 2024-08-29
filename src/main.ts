@@ -7,11 +7,7 @@ import { options } from '@utils'
 import { dereferenceWithRefNames } from 'core/parser'
 import * as fs from 'fs-extra'
 import * as path from 'path'
-import {
-    ControllerConfig,
-    createControllers,
-    getPaths,
-} from 'templates/controller'
+import { ControllerConfig, createControllers, getPaths } from 'templates/controller'
 import * as yaml from 'yaml'
 
 const fileContent = fs.readFileSync(options.input || './swagger.yaml', 'utf8')
@@ -20,9 +16,7 @@ const swaggerDoc: any = yaml.parse(fileContent)
 const getSharedDtos = (api: SwaggerApi, imports: any) => {
     const importDtos = imports.map((d: any) => [...d.importDtos]).flat()
     const sharedDtos = api.components?.schemas
-        ? Object.keys(api.components?.schemas).filter(
-              (title) => !importDtos.includes(title),
-          )
+        ? Object.keys(api.components?.schemas).filter((title) => !importDtos.includes(title))
         : []
 
     return sharedDtos
@@ -35,11 +29,9 @@ const generateControllers = (api: SwaggerApi, rootPath: string) => {
 
     Object.entries(api.paths).forEach(([route, methods]) => {
         const serviceName = Object.values(methods)[0].tags?.[0] || ''
-        Object.entries(methods).forEach(
-            ([method, data]: [string, Operation]) => {
-                getPaths(route, method, data, controllersCfg, serviceName)
-            },
-        )
+        Object.entries(methods).forEach(([method, data]: [string, Operation]) => {
+            getPaths(route, method, data, controllersCfg, serviceName)
+        })
     })
 
     controllersCfg.forEach((cfg) => {

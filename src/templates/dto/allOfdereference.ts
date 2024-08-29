@@ -3,9 +3,7 @@ import { ObjectSchema, Schema } from '@swaggertypes/shared.types'
 export const allOfDereference = (component: Schema) => {
     if (!component.allOf) return component
 
-    const reference: Required<
-        Pick<ObjectSchema, 'type' | 'properties' | 'required'>
-    > = {
+    const reference: Required<Pick<ObjectSchema, 'type' | 'properties' | 'required'>> = {
         type: 'object',
         properties: {},
         required: [],

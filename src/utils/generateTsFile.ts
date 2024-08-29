@@ -27,8 +27,5 @@ export const generateTsFile = async (
     })
     const servicePath = path.join(rootPath, `${folder || serviceName}`)
     fs.ensureDirSync(servicePath)
-    fs.writeFileSync(
-        path.join(servicePath, `${serviceName}.${type}.ts`),
-        formattedContent,
-    )
+    fs.writeFileSync(path.join(servicePath, `${serviceName}.${type}.ts`), formattedContent)
 }

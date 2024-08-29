@@ -1,10 +1,6 @@
 import { SwaggerApi } from '@swaggertypes/documentSwagger.type'
 import { allOfDereference } from '@templates/dto/allOfdereference'
-import {
-    classValidators,
-    plainToProp,
-    ValidatorsProps,
-} from '@templates/dto/plainToProp'
+import { classValidators, plainToProp, ValidatorsProps } from '@templates/dto/plainToProp'
 import { generateTsFile } from '@utils/generateTsFile'
 import { getEnums } from '@utils/getEnums'
 import { getFileImports } from '@utils/getFileImports'
@@ -27,16 +23,10 @@ class DtoFileFactory {
 
     private dtos: string[]
 
-    constructor(
-        rootPath: string,
-        serviceName: string,
-        dtoSchemas: [string, any][],
-    ) {
+    constructor(rootPath: string, serviceName: string, dtoSchemas: [string, any][]) {
         this.rootPath = rootPath
         this.serviceName = serviceName
-        this.dtos = dtoSchemas.map(([title, data]) =>
-            this.createDto(title, data),
-        )
+        this.dtos = dtoSchemas.map(([title, data]) => this.createDto(title, data))
     }
 
     private createDto = (title: string, data: any) => {
@@ -57,8 +47,7 @@ class DtoFileFactory {
 
             const apiProperty = this.getApiProperties(apiPlainedProps)
 
-            const classValidatorProps =
-                this.getClassValidatorProperties(apiPlainedProps)
+            const classValidatorProps = this.getClassValidatorProperties(apiPlainedProps)
 
             const propName = `${title}${required}`
 
@@ -77,10 +66,7 @@ class DtoFileFactory {
         this.imports['@nestjs/swagger'].add('ApiProperty')
 
         const props = Object.entries(apiPlainedProps)
-            .map(
-                ([key, value]) =>
-                    `${key}: ${value === `${value}` ? `'${value}'` : value}`,
-            )
+            .map(([key, value]) => `${key}: ${value === `${value}` ? `'${value}'` : value}`)
             .join(', ')
 
         return `@ApiProperty({${props}})`
@@ -96,8 +82,7 @@ class DtoFileFactory {
 
             const importName = prop.match(/^@(.+)\(/gi)?.[0]
 
-            importName &&
-                this.imports['class-validator'].add(importName.slice(1, -1))
+            importName && this.imports['class-validator'].add(importName.slice(1, -1))
 
             return prop
         })
@@ -110,8 +95,7 @@ class DtoFileFactory {
         if (data.type === 'array') {
             const nestedType = data.items.type
 
-            const isComplexType =
-                nestedType === 'object' || nestedType === 'array'
+            const isComplexType = nestedType === 'object' || nestedType === 'array'
 
             return `${isComplexType ? this.getType(data.items, title) : nestedType}[]`
         }
@@ -125,9 +109,7 @@ class DtoFileFactory {
             //TODO: rewrite to 1 isSuffix function
             const isBodySuffix = !!data.refType.match(new RegExp(`.Body$`))
 
-            const key: string = (
-                isBodySuffix ? data.refType.slice(0, -4) : data.refType
-            ).toLowerCase()
+            const key: string = (isBodySuffix ? data.refType.slice(0, -4) : data.refType).toLowerCase()
 
             if (!this.imports[`./${key}.dto`]) {
                 this.imports[`./${key}.dto`] = new Set()
@@ -149,18 +131,9 @@ class DtoFileFactory {
     generateDtoFile = () => {
         const fileImports = getFileImports(this.imports)
 
-        const tDtoStructure = _.compact([
-            fileImports,
-            this.dtos.join('\n\n'),
-        ]).join('\n\n')
+        const tDtoStructure = _.compact([fileImports, this.dtos.join('\n\n')]).join('\n\n')
 
-        generateTsFile(
-            this.rootPath,
-            this.serviceName,
-            'dto',
-            tDtoStructure,
-            'models',
-        )
+        generateTsFile(this.rootPath, this.serviceName, 'dto', tDtoStructure, 'models')
     }
 }
 
@@ -193,11 +166,7 @@ export const generateDtos = (api: SwaggerApi, rootPath: string) => {
             allOfDereference(api.components.schemas[dto]),
         ])
 
-        const dtosClass = new DtoFileFactory(
-            rootPath,
-            title.toLowerCase(),
-            filteredComponents,
-        )
+        const dtosClass = new DtoFileFactory(rootPath, title.toLowerCase(), filteredComponents)
         enums = { ...enums, ...dtosClass.enums }
 
         dtosClass.generateDtoFile()
