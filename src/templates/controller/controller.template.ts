@@ -1,3 +1,6 @@
+import { SwaggerApi } from '@swaggertypes/documentSwagger.type'
+import { Operation } from '@swaggertypes/paths.types'
+import { getPaths } from '@templates/controller/getPaths'
 import { methodNames } from '@utils/constants'
 import { generateTsFile } from '@utils/generateTsFile'
 import { getFileImports } from '@utils/getFileImports'
@@ -23,27 +26,23 @@ const methodSortFn = (paths: ControllerPath[]) =>
 class ControllerFileFactory {
     private serviceName: string
 
-    private rootPath: string
-
     private paths: string
 
     private controllerFile: string
 
-    private _imports: Record<string, Set<string>> = {
+    private imports: Record<string, Set<string>> = {
         ['@nestjs/common']: new Set<string>().add('Controller'),
         ['@nestjs/swagger']: new Set<string>().add('ApiTags'),
         ['../models']: new Set<string>(),
         // the service and dto are imported inside the constructor
     }
 
-    get imports() {
-        return this._imports
-    }
-
-    constructor(config: ControllerConfig, rootPath) {
+    constructor(
+        config: ControllerConfig,
+        private rootPath: string,
+    ) {
         this.serviceName = config.serviceName
-        this.rootPath = rootPath
-        this._imports[`./${this.serviceName}.service`] = new Set<string>().add(
+        this.imports[`./${this.serviceName}.service`] = new Set<string>().add(
             `${_.capitalize(this.serviceName)}Service`,
         )
         this.paths = methodSortFn(config.paths)
@@ -54,22 +53,22 @@ class ControllerFileFactory {
     }
 
     private addPath = ({ method, path, pathParams, queryParams, body, returnType }: ControllerPath) => {
-        this._imports['@nestjs/common'].add(_.capitalize(method))
+        this.imports['@nestjs/common'].add(_.capitalize(method))
         if (body) {
-            this._imports['@nestjs/common'].add('Body')
-            this._imports['../models'].add(body)
+            this.imports['@nestjs/common'].add('Body')
+            this.imports['../models'].add(body)
         }
         if (returnType) {
-            this._imports['../models'].add(
+            this.imports['../models'].add(
                 returnType.includes('[]') ? returnType.slice(0, returnType.length - 2) : returnType,
             )
         }
         if (pathParams) {
-            this._imports['@nestjs/common'].add('Param')
+            this.imports['@nestjs/common'].add('Param')
         }
 
         if (queryParams) {
-            this._imports['@nestjs/common'].add('Query')
+            this.imports['@nestjs/common'].add('Query')
         }
 
         const methodName = `${methodNames[method.toUpperCase() as keyof typeof methodNames]}${pathParams ? `By${pathParams.map(_.capitalize).join()}` : ''}`
@@ -129,8 +128,19 @@ class ControllerFileFactory {
     }
 }
 
-export const createControllers = (config: ControllerConfig, rootPath: string) => {
-    const controller = new ControllerFileFactory(config, rootPath)
-    controller.generateControllerFile()
-    return controller.imports['../models']
+export const generateControllers = (api: SwaggerApi, rootPath: string) => {
+    const controllersCfg: ControllerConfig[] = []
+
+    //create controllers config
+    Object.entries(api.paths).forEach(([route, methods]) => {
+        const serviceName = Object.values(methods)[0].tags?.[0] || ''
+        Object.entries(methods).forEach(([method, data]: [string, Operation]) => {
+            getPaths(route, method, data, controllersCfg, serviceName)
+        })
+    })
+
+    controllersCfg.forEach((cfg) => {
+        const controller = new ControllerFileFactory(cfg, rootPath)
+        controller.generateControllerFile()
+    })
 }

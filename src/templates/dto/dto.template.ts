@@ -1,5 +1,5 @@
 import { SwaggerApi } from '@swaggertypes/documentSwagger.type'
-import { allOfDereference } from '@templates/dto/allOfdereference'
+import { allOfDereference } from '@templates/dto/allOfDereference'
 import { classValidators, plainToProp, ValidatorsProps } from '@templates/dto/plainToProp'
 import { generateTsFile } from '@utils/generateTsFile'
 import { getEnums } from '@utils/getEnums'
@@ -18,15 +18,13 @@ class DtoFileFactory {
         ['./enums']: new Set(),
     }
 
-    private rootPath: string
-
-    private serviceName: string
-
     private dtos: string[]
 
-    constructor(rootPath: string, serviceName: string, dtoSchemas: [string, any][]) {
-        this.rootPath = rootPath
-        this.serviceName = serviceName
+    constructor(
+        private rootPath: string,
+        private serviceName: string,
+        dtoSchemas: [string, any][],
+    ) {
         this.dtos = dtoSchemas.map(([title, data]) => this.createDto(title, data))
     }
 
