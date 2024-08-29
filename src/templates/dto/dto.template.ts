@@ -1,3 +1,4 @@
+import { SwaggerApi } from '@swaggertypes/documentSwagger.type'
 import { allOfDereference } from '@templates/dto/allOfdereference'
 import {
     classValidators,
@@ -7,7 +8,9 @@ import {
 import { generateTsFile } from '@utils/generateTsFile'
 import { getEnums } from '@utils/getEnums'
 import { getFileImports } from '@utils/getFileImports'
+import * as fs from 'fs-extra'
 import * as _ from 'lodash'
+import * as path from 'path'
 
 class DtoFileFactory {
     enums: Record<string, any> = {}
@@ -15,6 +18,7 @@ class DtoFileFactory {
     private imports: Record<string, Set<string>> = {
         ['class-validator']: new Set(),
         ['@nestjs/swagger']: new Set(),
+        ['./enums']: new Set(),
     }
 
     private rootPath: string
@@ -118,12 +122,24 @@ class DtoFileFactory {
                     "don't use no ref object props. If you need use object prop, that create component and use him with $ref",
                 )
 
+            //TODO: rewrite to 1 isSuffix function
+            const isBodySuffix = !!data.refType.match(new RegExp(`.Body$`))
+
+            const key: string = (
+                isBodySuffix ? data.refType.slice(0, -4) : data.refType
+            ).toLowerCase()
+
+            if (!this.imports[`./${key}.dto`]) {
+                this.imports[`./${key}.dto`] = new Set()
+            }
+            this.imports[`./${key}.dto`].add(data.refType)
             return data.refType
         }
 
         if (data.enum) {
             const enumName = `${title}Enum`
             this.enums[enumName] = data.enum
+            this.imports['./enums'].add(enumName)
             return enumName
         }
 
@@ -135,7 +151,6 @@ class DtoFileFactory {
 
         const tDtoStructure = _.compact([
             fileImports,
-            getEnums(this.enums),
             this.dtos.join('\n\n'),
         ]).join('\n\n')
 
@@ -149,22 +164,59 @@ class DtoFileFactory {
     }
 }
 
-export const createDtos = (
-    api: any,
-    rootPath: string,
-    serviceName: string,
-    dtos: string[],
-) => {
-    const filteredComponents: [string, any][] = dtos.map((dto) => [
-        dto,
-        allOfDereference(api.components.schemas[dto]),
-    ])
+const getComponentGroups = (api: SwaggerApi) => {
+    const dtoBodySuffix = 'Body'
 
-    const dtosClass = new DtoFileFactory(
-        rootPath,
-        serviceName,
-        filteredComponents,
-    )
+    const groups: Record<string, Set<string>> = {}
 
-    dtosClass.generateDtoFile()
+    const schemas = Object.keys(api.components.schemas)
+
+    schemas.forEach((title) => {
+        const isBodySuffix = !!title.match(new RegExp(`.${dtoBodySuffix}$`))
+
+        const key = isBodySuffix ? title.slice(0, -dtoBodySuffix.length) : title
+
+        if (!groups[key]) groups[title] = new Set()
+        groups[key].add(title)
+    })
+
+    return groups
+}
+
+export const generateDtos = (api: SwaggerApi, rootPath: string) => {
+    const groups = getComponentGroups(api)
+    let enums: Record<string, any[]> = {}
+
+    Object.entries(groups).forEach(([title, groupSet]) => {
+        const filteredComponents: [string, any][] = [...groupSet].map((dto) => [
+            dto,
+            allOfDereference(api.components.schemas[dto]),
+        ])
+
+        const dtosClass = new DtoFileFactory(
+            rootPath,
+            title.toLowerCase(),
+            filteredComponents,
+        )
+        enums = { ...enums, ...dtosClass.enums }
+
+        dtosClass.generateDtoFile()
+    })
+
+    const enumsFile = getEnums(enums)
+
+    //create index.ts for models
+    const indexFile = Object.keys(groups)
+        .map((title) => {
+            return `export * from "./${title.toLowerCase()}.dto"`
+        })
+        .join('\n')
+
+    const modelsPath = path.join(rootPath, 'models')
+    fs.ensureDirSync(modelsPath)
+    const filePath = path.join(modelsPath, 'index.ts')
+    fs.writeFileSync(filePath, indexFile)
+
+    const fileEnums = path.join(modelsPath, 'enums.ts')
+    fs.writeFileSync(fileEnums, enumsFile)
 }

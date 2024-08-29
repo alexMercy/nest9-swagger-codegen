@@ -2,7 +2,7 @@
 
 import { SwaggerApi } from '@swaggertypes/documentSwagger.type'
 import { Operation } from '@swaggertypes/paths.types'
-import { createDtos } from '@templates/dto'
+import { generateDtos } from '@templates/dto'
 import { options } from '@utils'
 import { dereferenceWithRefNames } from 'core/parser'
 import * as fs from 'fs-extra'
@@ -50,51 +50,17 @@ const generateControllers = (api: SwaggerApi, rootPath: string) => {
     return imports
 }
 
-const getComponentGroups = (api: SwaggerApi) => {
-    const dtoBodySuffix = 'Body'
-
-    const groups: Record<string, Set<string>> = {}
-
-    const schemas = Object.keys(api.components.schemas)
-
-    schemas.forEach((title) => {
-        const isBodySuffix = !!title.match(new RegExp(`.${dtoBodySuffix}$`))
-
-        const key = isBodySuffix ? title.slice(0, -dtoBodySuffix.length) : title
-
-        if (!groups[key]) groups[title] = new Set()
-        groups[key].add(title)
-    })
-
-    return groups
-}
-
 const generateApi = (api: SwaggerApi) => {
     //TODO: delete after compelete -------
     // const filePath = path.join("./", 'swagger.json')
     // fs.writeFileSync(filePath, JSON.stringify( api));
     //----------------------------------
-    const groups = getComponentGroups(api)
+
     const rootPath = path.join(options.output || './', `services`)
     fs.ensureDirSync(rootPath)
 
     generateControllers(api, rootPath)
-
-    Object.entries(groups).forEach(([title, groupSet]) =>
-        createDtos(api, rootPath, title.toLowerCase(), [...groupSet]),
-    )
-
-    //create index.ts for models
-    const indexFile = Object.keys(groups)
-        .map((title) => {
-            return `export * from "./${title.toLowerCase()}.dto"`
-        })
-        .join('\n')
-
-    const modelsPath = path.join(rootPath, 'models')
-    fs.ensureDirSync(modelsPath)
-    const filePath = path.join(modelsPath, 'index.ts')
-    fs.writeFileSync(filePath, indexFile)
+    generateDtos(api, rootPath)
 
     console.log('Code generated successfully')
 }
