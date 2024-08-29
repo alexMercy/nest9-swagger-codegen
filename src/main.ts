@@ -64,7 +64,7 @@ const generateApi = (api: SwaggerApi) => {
   const imports = generateControllers(api, rootPath)
   const sharedDtos = getSharedDtos(api, imports);
 
-  imports.forEach(({ serviceName, importDtos }) => createDtos(api, rootPath, serviceName, importDtos))
+    imports.forEach(({serviceName, importDtos}) => createDtos(api, rootPath, serviceName, [...importDtos]))
   createDtos(api, rootPath, 'shared', sharedDtos)
 
   console.log('Code generated successfully');
