@@ -10,9 +10,12 @@ export const paramTypes = Object.freeze({
     QUERY: 'query',
 })
 
+export type argOptionsValues = (typeof argsOptions)[keyof typeof argsOptions]
+
 export const argsOptions = Object.freeze({
     OUTPUT: '--output',
     OUTPUT_SHORT: '-o',
     INPUT: '--input',
     INPUT_SHORT: '-i',
+    DTO_SUFFIX: '-suffix',
 })

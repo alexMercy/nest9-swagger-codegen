@@ -4,6 +4,7 @@ import { classValidators, plainToProp, ValidatorsProps } from '@templates/dto/pl
 import { generateTsFile } from '@utils/generateTsFile'
 import { getEnums } from '@utils/getEnums'
 import { getFileImports } from '@utils/getFileImports'
+import { getNameWithoutSuffix } from '@utils/isSuffix'
 import * as fs from 'fs-extra'
 import * as _ from 'lodash'
 import * as path from 'path'
@@ -106,10 +107,7 @@ class DtoFileFactory {
                     "don't use no ref object props. If you need use object prop, that create component and use him with $ref",
                 )
 
-            //TODO: rewrite to 1 isSuffix function
-            const isBodySuffix = !!data.refType.match(new RegExp(`.Body$`))
-
-            const key: string = (isBodySuffix ? data.refType.slice(0, -4) : data.refType).toLowerCase()
+            const key: string = getNameWithoutSuffix(data.refType)
 
             if (!this.imports[`./${key}.dto`]) {
                 this.imports[`./${key}.dto`] = new Set()
@@ -138,16 +136,12 @@ class DtoFileFactory {
 }
 
 const getComponentGroups = (api: SwaggerApi) => {
-    const dtoBodySuffix = 'Body'
-
     const groups: Record<string, Set<string>> = {}
 
     const schemas = Object.keys(api.components.schemas)
 
     schemas.forEach((title) => {
-        const isBodySuffix = !!title.match(new RegExp(`.${dtoBodySuffix}$`))
-
-        const key = isBodySuffix ? title.slice(0, -dtoBodySuffix.length) : title
+        const key = getNameWithoutSuffix(title)
 
         if (!groups[key]) groups[title] = new Set()
         groups[key].add(title)
