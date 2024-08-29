@@ -19,7 +19,16 @@ export const argsOptions = Object.freeze({
     GENERATE_OPTIONS_SHORT: '-g',
 })
 
-export const serviceOptionName = 'service'
-export const controllerOptionName = 'controller'
-export const draftSuffix = '.draft'
-export const generateOptionExpectedValues = [serviceOptionName]
+export const generateOptionNames = Object.freeze({
+    SERVICE: 'service',
+    CONTROLLER: 'controller',
+})
+
+export const suffixes = Object.freeze({
+    SERVICE: 'service',
+    CONTROLLER: 'controller',
+    DRAFT: 'draft',
+})
+
+export const generateOptionExpectedValuesArr =
+    Object.values(generateOptionNames)
