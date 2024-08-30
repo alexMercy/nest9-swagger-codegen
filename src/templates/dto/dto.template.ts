@@ -141,7 +141,7 @@ const getComponentGroups = (api: SwaggerApi) => {
     schemas.forEach((title) => {
         const key = getNameWithoutSuffix(title)
 
-        if (!groups[key]) groups[title] = new Set()
+        if (!groups[key]) groups[key] = new Set()
         groups[key].add(title)
     })
 
