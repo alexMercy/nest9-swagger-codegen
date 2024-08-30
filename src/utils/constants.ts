@@ -21,7 +21,6 @@ export const argsOptions = Object.freeze({
 
 export const generateOptionNames = Object.freeze({
     SERVICE: 'service',
-    CONTROLLER: 'controller',
     ENTITY: 'entity',
 })
 
