@@ -1,26 +1,25 @@
-import { ObjectSchema, Schema } from "@swaggertypes/shared.types";
+import { ObjectSchema, Schema } from '@swaggertypes/shared.types'
 
 export const allOfDereference = (component: Schema) => {
-  if(!component.allOf) return component
+    if (!component.allOf) return component
 
-  const reference: Required<Pick<ObjectSchema, 'type' | 'properties' | 'required'>> = {
-    type: 'object',
-    properties: {},
-    required: []
-  }
+    const reference: Required<Pick<ObjectSchema, 'type' | 'properties' | 'required'>> = {
+        type: 'object',
+        properties: {},
+        required: [],
+    }
 
-  component.allOf.forEach((ref) => {
-    if (!ref.properties) return 
+    component.allOf.forEach((ref) => {
+        if (!ref.properties) return
 
-    Object.entries(ref.properties).forEach(([title, data]) => {
-      reference.properties[title] = data
+        Object.entries(ref.properties).forEach(([title, data]) => {
+            reference.properties[title] = data
+        })
+
+        ref.required?.forEach((key) => {
+            reference.required.push(key)
+        })
     })
-    
-    ref.required?.forEach((key) => {
-      reference.required.push(key)
-    })
 
-  });
-  
-  return reference
+    return reference
 }

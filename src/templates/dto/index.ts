@@ -1,3 +1,2 @@
-export * from './allOfdereference';
-export * from './dto.template';
-
+export * from './allOfdereference'
+export * from './dto.template'
