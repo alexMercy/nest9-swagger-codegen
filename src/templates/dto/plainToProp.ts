@@ -8,9 +8,25 @@ const ValidatorsPropsArray = [
     'maxLength',
     'minLength',
     'pattern',
+    'nullable',
+    'format',
+    'maximum',
+    'exclusiveMaximum',
+    'minimum',
+    'exclusiveMinimum',
+    'maxLength',
+    'minLength',
+    'pattern',
 ] as const
 
 const ApiProperties = [
+    'example',
+    'examples',
+    'deprecated',
+    'description',
+    'default',
+    'title',
+    ...ValidatorsPropsArray,
     'example',
     'examples',
     'deprecated',
@@ -36,11 +52,22 @@ export const classValidators: Record<ValidatorsProps, (...args: any) => string> 
     exclusiveMinimum: (min: number) => `@Min(${min})`,
 }
 
-export function plainToProp(data: any) {
+export function plainToApiProperties(data: any) {
     const newObj = {}
     Object.keys(data).forEach((key) => {
         //@ts-ignore
         if (ApiProperties.includes(key)) {
+            newObj[key] = data[key]
+        }
+    })
+    return Object.keys(newObj).length ? newObj : undefined
+}
+
+export function plainToValidatorProperties(data: any) {
+    const newObj = {}
+    Object.keys(data).forEach((key) => {
+        //@ts-ignore
+        if (ValidatorsPropsArray.includes(key)) {
             newObj[key] = data[key]
         }
     })

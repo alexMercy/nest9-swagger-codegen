@@ -1,17 +1,18 @@
 # NEST JS codegen (mvp 0)
 
-## Что умеет: 
+## Что умеет:
 генерирует по swagger.yaml контроллеры и dto с учетом nestjs/swagger плагина.
 
 # Важно !
 
 - Не редактируйте файлы *.dto.ts и *.controller.ts, так как они генерируемые и отключить их генерацию нельзя! Исключением является поправить стили и добавить импорты, пока это не будет создано
 
-- Не используйте схемы без названия, так как nest при обратной генерации понимает только именновынные схемы. Например:
+- Не используйте схемы без названия, так как nest при обратной генерации понимает только именованные схемы. Например:
 ```yaml
+# Правильно
 put:
   parameters:
-    - name: uuid # тоже правильно
+    - name: uuid
       required: true
       in: path
       schema:
@@ -23,10 +24,10 @@ put:
         schema:
           $ref: "#/components/schemas/CategoryBody" # правильно
 
-
+# Неправильно
 put:
   parameters:
-    - name: uuid 
+    - name: uuid
       required: true
       in: path
       schema:
@@ -36,7 +37,7 @@ put:
     content:
       application/json:
         schema:
-          type: object # Неправильно. будет ошибка. Используйте $ref
+          type: object # неправильно, ошибка. Используйте $ref
           properties:
             title:
               type: string

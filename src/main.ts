@@ -3,11 +3,12 @@
 import { SwaggerApi } from '@swaggertypes/documentSwagger.type'
 import { Operation } from '@swaggertypes/paths.types'
 import { createDtos } from '@templates/dto'
-import { options } from '@utils'
+import { generateOptionNames, generateTsFile, options, suffixes } from '@utils'
 import { dereferenceWithRefNames } from 'core/parser'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import { ControllerConfig, createControllers, getPaths } from 'templates/controller'
+import { Tservice } from 'templates/service/service.template'
 import * as yaml from 'yaml'
 
 const fileContent = fs.readFileSync(options.input || './swagger.yaml', 'utf8')
@@ -38,6 +39,11 @@ const generateControllers = (api: SwaggerApi, rootPath: string) => {
         const importDtos = createControllers(cfg, rootPath)
         const { serviceName } = cfg
         imports.push({ serviceName, importDtos })
+
+        if (options.generateOpts?.includes(generateOptionNames.SERVICE)) {
+            const service = Tservice(cfg)
+            generateTsFile(rootPath, serviceName, suffixes.SERVICE + '.' + suffixes.DRAFT, service)
+        }
     })
     return imports
 }
@@ -66,10 +72,10 @@ const generateApi = (api: SwaggerApi) => {
     // const filePath = path.join("./", 'swagger.json')
     // fs.writeFileSync(filePath, JSON.stringify( api));
     //----------------------------------
-    const groups = getComponentGroups(api)
+
     const rootPath = path.join(options.output || './', `services`)
     fs.ensureDirSync(rootPath)
-
+    const groups = getComponentGroups(api)
     generateControllers(api, rootPath)
 
     Object.entries(groups).forEach(([title, groupSet]) => createDtos(api, rootPath, title.toLowerCase(), [...groupSet]))
