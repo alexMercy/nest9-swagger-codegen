@@ -3,7 +3,7 @@
 import { SwaggerApi } from '@swaggertypes/documentSwagger.type'
 import { Operation } from '@swaggertypes/paths.types'
 import { generateDtos } from '@templates/dto'
-import { createEntities } from 'templates/entity/entity.template'
+import { generateEntities } from 'templates/entity/entity.template'
 import { generateOptionNames, generateTsFile, options, suffixes } from '@utils'
 import { dereferenceWithRefNames } from 'core/parser'
 import * as fs from 'fs-extra'
@@ -14,15 +14,6 @@ import * as yaml from 'yaml'
 
 const fileContent = fs.readFileSync(options.input || './swagger.yaml', 'utf8')
 const swaggerDoc: any = yaml.parse(fileContent)
-
-const getSharedDtos = (api: SwaggerApi, imports: any) => {
-    const importDtos = imports.map((d: any) => [...d.importDtos]).flat()
-    const sharedDtos = api.components?.schemas
-        ? Object.keys(api.components?.schemas).filter((title) => !importDtos.includes(title))
-        : []
-
-    return sharedDtos
-}
 
 const generateControllers = (api: SwaggerApi, rootPath: string) => {
     const controllersCfg: ControllerConfig[] = []
@@ -45,6 +36,10 @@ const generateControllers = (api: SwaggerApi, rootPath: string) => {
             const service = Tservice(cfg)
             generateTsFile(rootPath, serviceName, suffixes.SERVICE + '.' + suffixes.DRAFT, service)
         }
+
+        if (options.generateOpts?.includes(generateOptionNames.ENTITY)) {
+            generateEntities(api, rootPath, serviceName, [...importDtos])
+        }
     })
     return imports
 }
@@ -59,12 +54,6 @@ const generateApi = (api: SwaggerApi) => {
     fs.ensureDirSync(rootPath)
     generateControllers(api, rootPath)
     generateDtos(api, rootPath)
-
-    if (options.generateOpts?.includes(generateOptionNames.ENTITY)) {
-        imports.forEach(({ serviceName, importDtos }) =>
-            createEntities(api, rootPath, serviceName, [...importDtos]),
-        )
-    }
 
     console.log('Code generated successfully')
 }

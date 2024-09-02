@@ -1,5 +1,5 @@
 import { SwaggerApi } from '@swaggertypes/documentSwagger.type'
-import { allOfDereference } from '@templates/dto/allOfdereference'
+import { allOfDereference } from '@templates/lib/allOfdereference'
 import {
     classValidators,
     plainToApiProperties,
@@ -160,7 +160,9 @@ const getComponentGroups = (api: SwaggerApi) => {
 
         const key = isBodySuffix ? title.slice(0, -dtoBodySuffix.length) : title
 
-        if (!groups[key]) groups[title] = new Set()
+        if (!groups[key]) {
+            groups[key] = new Set()
+        }
         groups[key].add(title)
     })
 

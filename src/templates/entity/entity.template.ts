@@ -17,11 +17,7 @@ class EntityFileFactory {
 
     private entities: { title: string; code: string }[]
 
-    constructor(
-        rootPath: string,
-        serviceName: string,
-        entitySchemas: [string, any][],
-    ) {
+    constructor(rootPath: string, serviceName: string, entitySchemas: [string, any][]) {
         this.rootPath = rootPath
         this.serviceName = serviceName
         this.imports['typeorm'].add('Column')
@@ -52,7 +48,6 @@ class EntityFileFactory {
         ${props}
       }
 
-      export class ${title} extends _${title} {}
 `
     }
 
@@ -74,8 +69,7 @@ class EntityFileFactory {
         if (data.type === 'array') {
             const nestedType = data.items.type
 
-            const isComplexType =
-                nestedType === 'object' || nestedType === 'array'
+            const isComplexType = nestedType === 'object' || nestedType === 'array'
 
             return `${isComplexType ? this.getType(data.items, title) : nestedType}[]`
         }
@@ -102,9 +96,7 @@ class EntityFileFactory {
         this.entities.forEach((entity) => {
             const fileImports = getFileImports(this.imports)
 
-            const tEntityStructure = _.compact([fileImports, entity.code]).join(
-                '\n\n',
-            )
+            const tEntityStructure = _.compact([fileImports, entity.code]).join('\n\n')
 
             generateTsFile(
                 this.rootPath,
@@ -116,12 +108,7 @@ class EntityFileFactory {
     }
 }
 
-export const createEntities = (
-    api: any,
-    rootPath: string,
-    serviceName: string,
-    entities: string[],
-) => {
+export const generateEntities = (api: any, rootPath: string, serviceName: string, entities: string[]) => {
     const filteredComponents: [string, any][] = entities.map((entity) => [
         entity,
         allOfDereference(api.components.schemas[entity]),
@@ -131,11 +118,7 @@ export const createEntities = (
     // const filteredObjects = _.filter(filteredComponents, [[{ 'type': 'object' }]])
     // console.log('filtered objects')
     // console.log(filteredObjects)
-    const entityClass = new EntityFileFactory(
-        rootPath,
-        serviceName,
-        filteredComponents,
-    )
+    const entityClass = new EntityFileFactory(rootPath, serviceName, filteredComponents)
 
     entityClass.generateEntityFiles()
 }
