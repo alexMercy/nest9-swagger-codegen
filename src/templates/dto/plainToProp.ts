@@ -8,9 +8,25 @@ const ValidatorsPropsArray = [
     'maxLength',
     'minLength',
     'pattern',
+    'nullable',
+    'format',
+    'maximum',
+    'exclusiveMaximum',
+    'minimum',
+    'exclusiveMinimum',
+    'maxLength',
+    'minLength',
+    'pattern',
 ] as const
 
 const ApiProperties = [
+    'example',
+    'examples',
+    'deprecated',
+    'description',
+    'default',
+    'title',
+    ...ValidatorsPropsArray,
     'example',
     'examples',
     'deprecated',
@@ -22,10 +38,7 @@ const ApiProperties = [
 
 export type ValidatorsProps = (typeof ValidatorsPropsArray)[number]
 
-export const classValidators: Record<
-    ValidatorsProps,
-    (...args: any) => string
-> = {
+export const classValidators: Record<ValidatorsProps, (...args: any) => string> = {
     nullable: () => `@IsEmpty()`,
     format: (type: any) => `@IsEmpty()`, //TODO: rewrite
     pattern: (regexp: string) => `@Mathes(new RegExp('${regexp}'))`, //TODO: rewrite

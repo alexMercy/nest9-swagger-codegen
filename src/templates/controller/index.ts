@@ -1,2 +1,2 @@
-export * from './controller.template';
-export * from './getPaths';
+export * from './controller.template'
+export * from './getPaths'

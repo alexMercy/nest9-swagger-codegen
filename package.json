@@ -1,44 +1,45 @@
 {
-  "name": "@alex_mercy/nest-swagger-codegen",
-  "version": "0.1.8",
-  "scripts": {
-    "dev": "ts-node -r tsconfig-paths/register ./src/main.ts",
-    "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
-    "prepublishOnly": "npm run build"
-  },
-  "dependencies": {
-    "@apidevtools/swagger-parser": "^10.1.0",
-    "eslint": "^9.9.0",
-    "fs-extra": "^11.2.0",
-    "json-schema-ref-parser": "^9.0.9",
-    "lodash": "^4.17.21",
-    "path": "^0.12.7",
-    "prettier": "^3.3.3",
-    "yaml": "^2.5.0"
-  },
-  "devDependencies": {
-    "@types/fs-extra": "^11.0.4",
-    "@types/lodash": "^4.17.7",
-    "@types/node": "^22.4.1",
-    "@types/swagger-schema-official": "^2.0.25",
-    "openapi-types": "^12.1.3",
-    "ts-node": "^10.9.2",
-    "tsc-alias": "^1.8.10",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.5.4",
-    "typescript-transform-paths": "^3.5.0"
-  },
-  "files": [
-    "dist"
-  ],
-  "bin": {
-    "nestgen": "dist/main.js"
-  },
-  "author": "AlexMercy<alexevansdance@gmail.com>",
-  "license":"MIT",
-  "homepage": "https://github.com/alexMercy/nest9-swagger-codegen#readme",
-  "bugs": "https://github.com/alexMercy/nest9-swagger-codegen/issues",
-  "repository": "github:alexMercy/nest9-swagger-codegen",
-  "main": "dist/main.js",
-  "types": "dist/main.d.ts"
+    "name": "@alex_mercy/nest-swagger-codegen",
+    "version": "0.1.8",
+    "scripts": {
+        "dev": "ts-node -r tsconfig-paths/register ./src/main.ts",
+        "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
+        "format": "prettier --write \"src/**/*.ts\"",
+        "prepublishOnly": "npm run build"
+    },
+    "dependencies": {
+        "@apidevtools/swagger-parser": "^10.1.0",
+        "eslint": "^9.9.0",
+        "fs-extra": "^11.2.0",
+        "json-schema-ref-parser": "^9.0.9",
+        "lodash": "^4.17.21",
+        "path": "^0.12.7",
+        "prettier": "^3.3.3",
+        "yaml": "^2.5.0"
+    },
+    "devDependencies": {
+        "@types/fs-extra": "^11.0.4",
+        "@types/lodash": "^4.17.7",
+        "@types/node": "^22.4.1",
+        "@types/swagger-schema-official": "^2.0.25",
+        "openapi-types": "^12.1.3",
+        "ts-node": "^10.9.2",
+        "tsc-alias": "^1.8.10",
+        "tsconfig-paths": "^4.2.0",
+        "typescript": "^5.5.4",
+        "typescript-transform-paths": "^3.5.0"
+    },
+    "files": [
+        "dist"
+    ],
+    "bin": {
+        "nestgen": "dist/main.js"
+    },
+    "author": "AlexMercy<alexevansdance@gmail.com>",
+    "license": "MIT",
+    "homepage": "https://github.com/alexMercy/nest9-swagger-codegen#readme",
+    "bugs": "https://github.com/alexMercy/nest9-swagger-codegen/issues",
+    "repository": "github:alexMercy/nest9-swagger-codegen",
+    "main": "dist/main.js",
+    "types": "dist/main.d.ts"
 }

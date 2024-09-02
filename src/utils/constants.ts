@@ -31,5 +31,4 @@ export const suffixes = Object.freeze({
     DRAFT: 'draft',
 })
 
-export const generateOptionExpectedValuesArr =
-    Object.values(generateOptionNames)
+export const generateOptionExpectedValuesArr = Object.values(generateOptionNames)
