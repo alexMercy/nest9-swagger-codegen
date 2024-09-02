@@ -1,4 +1,4 @@
-import { methodNames } from '@utils/constants'
+import { methodNames, suffixes } from '@utils/constants'
 import { generateTsFile } from '@utils/generateTsFile'
 import { getFileImports } from '@utils/getFileImports'
 import * as _ from 'lodash'
@@ -18,7 +18,7 @@ export interface ControllerPath {
 
 const methodSorts = ['get', 'post', 'put', 'delete']
 const methodSortFn = (paths: ControllerPath[]) =>
-    paths.sort((a, b) => methodSorts.indexOf(a.method) - methodSorts.indexOf(b.method))
+    [...paths].sort((a, b) => methodSorts.indexOf(a.method) - methodSorts.indexOf(b.method))
 
 class ControllerFileFactory {
     private serviceName: string
@@ -72,10 +72,12 @@ class ControllerFileFactory {
             this._imports['@nestjs/common'].add('Query')
         }
 
-        const methodName = `${methodNames[method.toUpperCase() as keyof typeof methodNames]}${pathParams ? `By${pathParams.map(_.capitalize).join()}` : ''}`
+        const baseMethodName = methodNames[method.toUpperCase() as keyof typeof methodNames]
+        const byParamSuffix = pathParams ? `By${pathParams.map(_.capitalize).join()}` : ''
+        const methodName = `${baseMethodName}${byParamSuffix}`
 
-        const pathParamsArgs = pathParams?.map((param) => `@Param('${param}') ${param}: string`).join(', ') || ''
-        const queryParamsArgs = queryParams?.map((param) => `@Query('${param}') ${param}: string`).join(', ') || ''
+        const pathParamsArgs = pathParams?.map((param) => `@Param('${param}') ${param}: string`).join(', ') ?? ''
+        const queryParamsArgs = queryParams?.map((param) => `@Query('${param}') ${param}: string`).join(', ') ?? ''
         const bodyParamsArgs = body ? `@Body() body: ${body}` : ''
 
         const pathWithoutRoute = this.getPathWithoutFirstRoute(path)
@@ -85,7 +87,7 @@ class ControllerFileFactory {
         const serviceParams = _.compact([pathParams, queryParams, body ? 'body' : ''].flat()).join(', ')
 
         return `    @${_.capitalize(method)}(${decoratorParams})
-        ${methodName}(${argsParams}): Promise<${returnType || 'void'}> {
+        ${methodName}(${argsParams}): Promise<${returnType ?? 'void'}> {
             return this.${this.serviceName}Service.${methodName}(${serviceParams})
         }`
     }
@@ -125,7 +127,7 @@ class ControllerFileFactory {
 
         const tDtoStructure = _.compact([fileImports, this.controllerFile]).join('\n\n')
 
-        generateTsFile(this.rootPath, this.serviceName, 'controller', tDtoStructure)
+        generateTsFile(this.rootPath, this.serviceName, suffixes.CONTROLLER, tDtoStructure)
     }
 }
 
