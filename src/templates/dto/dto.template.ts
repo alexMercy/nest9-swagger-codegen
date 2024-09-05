@@ -1,5 +1,5 @@
 import { SwaggerApi } from '@swaggertypes/documentSwagger.type'
-import { allOfDereference } from '@templates/lib/allOfdereference'
+import { allOfDereference } from '@templates/lib'
 import {
     classValidators,
     plainToApiProperties,

@@ -28,6 +28,7 @@ export const suffixes = Object.freeze({
     SERVICE: 'service',
     CONTROLLER: 'controller',
     DTO: 'dto',
+    ENTITY: 'entity',
     DRAFT: 'draft',
 })
 

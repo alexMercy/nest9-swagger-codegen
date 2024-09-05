@@ -49,9 +49,7 @@ const addServiceOperation = ({
     }
 
     if (returnType) {
-        imports.dtos.add(
-            _.capitalize(returnType.includes('[]') ? returnType.slice(0, returnType.length - 2) : returnType),
-        )
+        imports.dtos.add(_.capitalize(returnType.includes('[]') ? returnType.slice(0, -2) : returnType))
     }
 
     const baseMethodName = methodNames[method.toUpperCase() as keyof typeof methodNames]

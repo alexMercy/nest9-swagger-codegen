@@ -1,6 +1,7 @@
-import { allOfDereference } from '@templates/lib/allOfdereference'
+import { allOfDereference } from '@templates/lib'
 import { generateTsFile } from '@utils/generateTsFile'
 import { getFileImports } from '@utils/getFileImports'
+import { suffixes } from '@utils/constants'
 import * as _ from 'lodash'
 
 class EntityFileFactory {
@@ -20,18 +21,13 @@ class EntityFileFactory {
     constructor(rootPath: string, serviceName: string, entitySchemas: [string, any][]) {
         this.rootPath = rootPath
         this.serviceName = serviceName
-        this.imports['typeorm'].add('Column')
-        this.imports['typeorm'].add('Entity')
-        this.imports['typeorm'].add('PrimaryGeneratedColumn')
+        this.imports['typeorm'].add('Column').add('Entity').add('PrimaryGeneratedColumn')
         this.imports['@nestjs/swagger'].add('OmitType')
 
-        this.entities = entitySchemas.map(([_title, _data]) => {
-            const obj = {
-                title: _title,
-                code: this.createEntityClass(_title, _data),
-            }
-            return obj
-        })
+        this.entities = entitySchemas.map(([title, data]) => ({
+            title,
+            code: this.createEntityClass(title, data),
+        }))
     }
 
     private createEntityClass = (title: string, data: any) => {
@@ -101,7 +97,7 @@ class EntityFileFactory {
             generateTsFile(
                 this.rootPath,
                 this.serviceName,
-                `${entity.title.toLowerCase()}.entity.draft`,
+                `${entity.title.toLowerCase()}.${suffixes.ENTITY}.${suffixes.DRAFT}`,
                 tEntityStructure,
             )
         })
