@@ -21,13 +21,14 @@ export const argsOptions = Object.freeze({
 
 export const generateOptionNames = Object.freeze({
     SERVICE: 'service',
-    CONTROLLER: 'controller',
+    ENTITY: 'entity',
 })
 
 export const suffixes = Object.freeze({
     SERVICE: 'service',
     CONTROLLER: 'controller',
     DTO: 'dto',
+    ENTITY: 'entity',
     DRAFT: 'draft',
 })
 
