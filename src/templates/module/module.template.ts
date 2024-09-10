@@ -71,7 +71,7 @@ const getTemplate = (serviceName: string) => {
 export const generateModules = (serviceNames: string[], rootPath: string) => {
     serviceNames.forEach((serviceName) => {
         const template = getTemplate(serviceName)
-        generateTsFile(rootPath, serviceName.toLowerCase(), suffixes.MODULE, template)
+        generateTsFile(rootPath, serviceName.toLowerCase(), `${suffixes.MODULE}.${suffixes.DRAFT}`, template)
     })
     const appModuleDraftTemplate = getAppModuleDraftTemplate(serviceNames)
     generateTsFile(rootPath, 'app', `${suffixes.MODULE}.${suffixes.DRAFT}`, appModuleDraftTemplate, './')
