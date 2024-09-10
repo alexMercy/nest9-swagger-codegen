@@ -3,12 +3,13 @@
 import { SwaggerApi } from '@swaggertypes/documentSwagger.type'
 import { Operation } from '@swaggertypes/paths.types'
 import { generateDtos } from '@templates/dto'
-import { generateEntities } from 'templates/entity/entity.template'
+import { generateModules } from '@templates/module'
 import { generateOptionNames, generateTsFile, options, suffixes } from '@utils'
 import { dereferenceWithRefNames } from 'core/parser'
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import { ControllerConfig, createControllers, getPaths } from 'templates/controller'
+import { generateEntities } from 'templates/entity/entity.template'
 import { Tservice } from 'templates/service/service.template'
 import * as yaml from 'yaml'
 
@@ -41,7 +42,7 @@ const generateControllers = (api: SwaggerApi, rootPath: string) => {
             generateEntities(api, rootPath, serviceName, [...importDtos])
         }
     })
-    return imports
+    return controllersCfg.map((cfg) => cfg.serviceName)
 }
 
 const generateApi = (api: SwaggerApi) => {
@@ -52,8 +53,9 @@ const generateApi = (api: SwaggerApi) => {
 
     const rootPath = path.join(options.output || './', `services`)
     fs.ensureDirSync(rootPath)
-    generateControllers(api, rootPath)
+    const serviceNames = generateControllers(api, rootPath)
     generateDtos(api, rootPath)
+    generateModules(serviceNames, rootPath)
 
     console.log('Code generated successfully')
 }

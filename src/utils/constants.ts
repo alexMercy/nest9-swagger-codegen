@@ -30,6 +30,7 @@ export const suffixes = Object.freeze({
     DTO: 'dto',
     ENTITY: 'entity',
     DRAFT: 'draft',
+    MODULE: 'module',
 })
 
 export const generateOptionExpectedValuesArr = Object.values(generateOptionNames)
