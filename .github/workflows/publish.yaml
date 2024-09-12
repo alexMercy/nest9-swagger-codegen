@@ -20,7 +20,6 @@ jobs:
       - run: git config --global user.name "${{ github.actor }}"
       - run: git config --global user.email "github-action-${{ github.actor }}@users.noreply.github.com"
       - run: git add . && git commit -am "version ${{ github.event.release.tag_name }}"
-      - run: git push origin main
       - run: npm version ${{ github.event.release.tag_name }}
       - run: npm run build
       - run: git push origin main
