@@ -147,7 +147,7 @@ class DtoFileFactory {
 
         const tDtoStructure = _.compact([fileImports, this.dtos.join('\n\n')]).join('\n\n')
 
-        generateTsFile(this.rootPath, this.serviceName, suffixes.DTO, tDtoStructure, 'models')
+        generateTsFile(this.rootPath, this.serviceName.toLowerCase(), suffixes.DTO, tDtoStructure, 'models')
     }
 }
 

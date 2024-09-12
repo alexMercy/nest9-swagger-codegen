@@ -35,11 +35,11 @@ const generateControllers = (api: SwaggerApi, rootPath: string) => {
 
         if (options.generateOpts?.includes(generateOptionNames.SERVICE)) {
             const service = Tservice(cfg)
-            generateTsFile(rootPath, serviceName, suffixes.SERVICE + '.' + suffixes.DRAFT, service)
+            generateTsFile(rootPath, serviceName.toLowerCase(), suffixes.SERVICE + '.' + suffixes.DRAFT, service)
         }
 
         if (options.generateOpts?.includes(generateOptionNames.ENTITY)) {
-            generateEntities(api, rootPath, serviceName, [...importDtos])
+            generateEntities(api, rootPath, serviceName.toLowerCase(), [...importDtos])
         }
     })
     return controllersCfg.map((cfg) => cfg.serviceName)
