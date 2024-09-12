@@ -1,11 +1,11 @@
 import { SwaggerApi } from '@swaggertypes/documentSwagger.type'
-import { allOfDereference } from '@templates/lib'
 import {
     classValidators,
     plainToApiProperties,
     plainToValidatorProperties,
     ValidatorsProps,
 } from '@templates/dto/plainToProp'
+import { allOfDereference } from '@templates/lib'
 import { suffixes } from '@utils/constants'
 import { generateTsFile } from '@utils/generateTsFile'
 import { getEnums } from '@utils/getEnums'
@@ -48,7 +48,7 @@ class DtoFileFactory {
         const { properties, required: requireds } = data
 
         return Object.entries(properties).map(([title, data]) => {
-            const required = requireds.includes(title) ? '' : '?'
+            const required = requireds?.includes(title) ? '' : '?'
 
             const apiProperty = this.getApiProperties(data)
 
@@ -102,16 +102,17 @@ class DtoFileFactory {
     }
 
     private getType = (data: any, title: string) => {
-        if (!data.type) throw new Error(`No type in field ${title}`)
+        if (!data.type && !data.allOf) throw new Error(`No type in field ${title}`)
+
         if (data.type === 'array') {
             const nestedType = data.items.type
 
-            const isComplexType = nestedType === 'object' || nestedType === 'array'
+            const isComplexType = nestedType === 'object' || nestedType === 'array' || data.items.allOf
 
             return `${isComplexType ? this.getType(data.items, title) : nestedType}[]`
         }
 
-        if (data.type === 'object') {
+        if (data.type === 'object' || data.allOf) {
             if (!data.refType)
                 throw new Error(
                     "don't use no ref object props. If you need use object prop, that create component and use him with $ref",
@@ -135,6 +136,8 @@ class DtoFileFactory {
             this.imports['./enums'].add(enumName)
             return enumName
         }
+
+        if (data.type === 'integer') return 'number'
 
         return data.type
     }
