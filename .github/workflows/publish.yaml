@@ -22,6 +22,7 @@ jobs:
       - run: git add . && git commit -am "version ${{ github.event.release.tag_name }}"
       - run: npm version ${{ github.event.release.tag_name }}
       - run: npm run build
-      - run: git push origin main
+      - run: git checkout -b main
+      - run: git push --set-upstream origin main
       - run: npm publish --provenance --access public
        
