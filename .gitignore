@@ -3,6 +3,7 @@
 /node_modules
 /build
 /services
+/modules
 # Logs
 logs
 *.log

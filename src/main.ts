@@ -51,7 +51,7 @@ const generateApi = (api: SwaggerApi) => {
     // fs.writeFileSync(filePath, JSON.stringify( api));
     //----------------------------------
 
-    const rootPath = path.join(options.output || './', `services`)
+    const rootPath = path.join(options.output || './', `modules`)
     fs.ensureDirSync(rootPath)
     const serviceNames = generateControllers(api, rootPath)
     generateDtos(api, rootPath)
