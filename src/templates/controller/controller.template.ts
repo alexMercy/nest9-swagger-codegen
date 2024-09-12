@@ -127,7 +127,7 @@ class ControllerFileFactory {
 
         const tDtoStructure = _.compact([fileImports, this.controllerFile]).join('\n\n')
 
-        generateTsFile(this.rootPath, this.serviceName.toLowerCase(), suffixes.CONTROLLER, tDtoStructure)
+        generateTsFile(this.rootPath, this.serviceName, suffixes.CONTROLLER, tDtoStructure)
     }
 }
 

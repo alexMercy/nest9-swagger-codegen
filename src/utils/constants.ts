@@ -34,3 +34,4 @@ export const suffixes = Object.freeze({
 })
 
 export const generateOptionExpectedValuesArr = Object.values(generateOptionNames)
+export const targetStructureRootFolderName = 'modules'

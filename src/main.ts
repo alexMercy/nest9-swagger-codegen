@@ -4,7 +4,7 @@ import { SwaggerApi } from '@swaggertypes/documentSwagger.type'
 import { Operation } from '@swaggertypes/paths.types'
 import { generateDtos } from '@templates/dto'
 import { generateModules } from '@templates/module'
-import { generateOptionNames, generateTsFile, options, suffixes } from '@utils'
+import { generateOptionNames, generateTsFile, options, suffixes, targetStructureRootFolderName } from '@utils'
 import { dereferenceWithRefNames } from 'core/parser'
 import * as fs from 'fs-extra'
 import * as path from 'path'
@@ -35,11 +35,11 @@ const generateControllers = (api: SwaggerApi, rootPath: string) => {
 
         if (options.generateOpts?.includes(generateOptionNames.SERVICE)) {
             const service = Tservice(cfg)
-            generateTsFile(rootPath, serviceName.toLowerCase(), suffixes.SERVICE + '.' + suffixes.DRAFT, service)
+            generateTsFile(rootPath, serviceName, suffixes.SERVICE + '.' + suffixes.DRAFT, service)
         }
 
         if (options.generateOpts?.includes(generateOptionNames.ENTITY)) {
-            generateEntities(api, rootPath, serviceName.toLowerCase(), [...importDtos])
+            generateEntities(api, rootPath, serviceName, [...importDtos])
         }
     })
     return controllersCfg.map((cfg) => cfg.serviceName)
@@ -51,7 +51,7 @@ const generateApi = (api: SwaggerApi) => {
     // fs.writeFileSync(filePath, JSON.stringify( api));
     //----------------------------------
 
-    const rootPath = path.join(options.output || './', `modules`)
+    const rootPath = path.join(options.output || './', targetStructureRootFolderName)
     fs.ensureDirSync(rootPath)
     const serviceNames = generateControllers(api, rootPath)
     generateDtos(api, rootPath)
