@@ -5,7 +5,7 @@ export const getFileImports = (imports: Record<string, Set<string>>) => {
 
             const props = [...set].join(', ')
 
-            return `import { ${props} } from "${path}"`
+            return `import { ${props} } from "${path.toLowerCase()}"`
         })
         .join('\n')
 }
