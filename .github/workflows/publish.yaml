@@ -7,9 +7,6 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            id-token: write
         steps:
             - uses: actions/checkout@v4
             - uses: actions/setup-node@v4
@@ -21,11 +18,11 @@ jobs:
                   git config --global user.name "${{ github.actor }}"
                   git config --global user.email "github-action-${{ github.actor }}@users.noreply.github.com"
             - run: |
-                  git add . && git commit -am "version ${{ github.event.release.tag_name }}"
+                  git add . && git commit -am "version ${{ inputs.version }}"
                   npm version ${{ inputs.version }}
                   git push origin main
                   git push origin v${{ inputs.version }}
             - run: npm run build
-            - run: npm publish --provenance --access public
+            - run: npm publish --access public
         env:
             NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
