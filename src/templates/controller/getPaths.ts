@@ -1,7 +1,7 @@
 import { Operation } from '@swaggertypes/paths.types'
 import { paramTypes } from '@utils/constants'
 import { ControllerConfig, type ControllerPath } from './controller.template'
-import { RefSchema } from '@swaggertypes/shared.types'
+import { ParameterWithSchema } from '@templates/lib'
 
 export const getPaths = (
     route: string,
@@ -11,14 +11,14 @@ export const getPaths = (
     serviceName: string,
 ) => {
     const { parameters, requestBody, responses } = data
-    const pathParams: { name: string; schema: RefSchema }[] = []
-    const queryParams: { name: string; schema: RefSchema }[] = []
+    const pathParams: ParameterWithSchema[] = []
+    const queryParams: ParameterWithSchema[] = []
 
     if (parameters) {
         for (const param of parameters) {
-           const { name, schema } = param
+            const { name, schema } = param
             if (param.in === paramTypes.PATH) {
-                pathParams.push({ name, schema})
+                pathParams.push({ name, schema })
             }
             if (param.in == paramTypes.QUERY) {
                 queryParams.push({ name, schema })

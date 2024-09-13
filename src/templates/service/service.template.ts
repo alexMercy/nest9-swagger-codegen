@@ -61,9 +61,12 @@ const addServiceOperation = ({
     const methodName = `${baseMethodName}${byParamSuffix}`
 
     const getParamsWithTypeString = function (params?: ParameterWithSchema[]): string {
-        return  params?.map((pp) => `${pp.name}: ${getMappedSwaggerType(pp.schema.type, pp.schema.format)}`).join(', ') ?? ''
+        return (
+            params?.map((pp) => `${pp.name}: ${getMappedSwaggerType(pp.schema.type, pp.schema.format)}`).join(', ') ??
+            ''
+        )
     }
- 
+
     const pathParamsArgs = getParamsWithTypeString(pathParams)
     const queryParamsArgs = getParamsWithTypeString(queryParams)
     const bodyParamsArgs = body ? `body: ${body}` : ''
