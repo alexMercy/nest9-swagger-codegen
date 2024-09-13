@@ -1,18 +1,14 @@
 import { methodNames, suffixes } from '@utils/constants'
 import { generateTsFile } from '@utils/generateTsFile'
 import { getFileImports } from '@utils/getFileImports'
-import { Schema } from '@swaggertypes/shared.types'
-import * as _ from 'lodash'
 import { getMappedSwaggerType } from '@utils/getMappedSwaggerType'
+import { ParameterWithSchema } from '@templates/lib'
+
+import * as _ from 'lodash'
 
 export interface ControllerConfig {
     serviceName: string
     paths: ControllerPath[]
-}
-
-export interface ParameterWithSchema {
-    name: string
-    schema: Schema
 }
 
 export interface ControllerPath {
@@ -76,11 +72,7 @@ class ControllerFileFactory {
         if (pathParams) {
             this._imports['@nestjs/common'].add('Param')
 
-            if (
-                _.some(pathParams, function (param) {
-                    return param.schema.format == 'uuid'
-                })
-            ) {
+            if (pathParams.some((param) => param.schema.format == 'uuid')) {
                 this._imports['crypto'].add('UUID')
             }
         }
@@ -88,11 +80,7 @@ class ControllerFileFactory {
         if (queryParams) {
             this._imports['@nestjs/common'].add('Query')
 
-            if (
-                _.some(queryParams, function (param) {
-                    return param.schema.format == 'uuid'
-                })
-            ) {
+            if (queryParams.some((param) => param.schema.format == 'uuid')) {
                 this._imports['crypto'].add('UUID')
             }
         }
@@ -103,17 +91,11 @@ class ControllerFileFactory {
 
         const pathParamsArgs =
             pathParams
-                ?.map(
-                    (param) =>
-                        `@Param('${param.name}') ${param.name}: ${getMappedSwaggerType(param.schema.type, param.schema.format)}`,
-                )
+                ?.map((p) => `@Param('${p.name}') ${p.name}: ${getMappedSwaggerType(p.schema.type, p.schema.format)}`)
                 .join(', ') ?? ''
         const queryParamsArgs =
             queryParams
-                ?.map(
-                    (param) =>
-                        `@Query('${param.name}') ${param.name}: ${getMappedSwaggerType(param.schema.type, param.schema.format)}`,
-                )
+                ?.map((p) => `@Query('${p.name}') ${p.name}: ${getMappedSwaggerType(p.schema.type, p.schema.format)}`)
                 .join(', ') ?? ''
         const bodyParamsArgs = body ? `@Body() body: ${body}` : ''
 

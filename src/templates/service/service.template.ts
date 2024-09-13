@@ -1,7 +1,9 @@
 import { methodNames } from '@utils/constants'
 import { ControllerPath } from '../controller/controller.template'
-import * as _ from 'lodash'
+import { ParameterWithSchema } from '@templates/lib'
 import { getMappedSwaggerType } from '@utils/getMappedSwaggerType'
+
+import * as _ from 'lodash'
 
 type addServiceOperationProps = ControllerPath & {
     serviceName: string
@@ -58,12 +60,12 @@ const addServiceOperation = ({
     const byParamSuffix = pathParams ? `By${pathParams.map((pp) => _.capitalize(pp.name)).join()}` : ''
     const methodName = `${baseMethodName}${byParamSuffix}`
 
-    const pathParamsArgs =
-        pathParams?.map((pp) => `${pp.name}: ${getMappedSwaggerType(pp.schema.type, pp.schema.format)}`).join(', ') ??
-        ''
-    const queryParamsArgs =
-        queryParams?.map((pp) => `${pp.name}: ${getMappedSwaggerType(pp.schema.type, pp.schema.format)}`).join(', ') ??
-        ''
+    const getParamsWithTypeString = function (pp: ParameterWithSchema): string {
+        return `${pp.name}: ${getMappedSwaggerType(pp.schema.type, pp.schema.format)}`
+    }
+
+    const pathParamsArgs = pathParams?.map((pp) => getParamsWithTypeString(pp)).join(', ') ?? ''
+    const queryParamsArgs = queryParams?.map((pp) => getParamsWithTypeString(pp)).join(', ') ?? ''
     const bodyParamsArgs = body ? `body: ${body}` : ''
 
     const argsParams = _.compact([pathParamsArgs, queryParamsArgs, bodyParamsArgs]).join(', ')
