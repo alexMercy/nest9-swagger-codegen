@@ -1,17 +1,21 @@
 import { methodNames, suffixes } from '@utils/constants'
 import { generateTsFile } from '@utils/generateTsFile'
 import { getFileImports } from '@utils/getFileImports'
+import { getMappedSwaggerType } from '@utils/getMappedSwaggerType'
+import { ParameterWithSchema } from '@templates/lib'
+
 import * as _ from 'lodash'
 
 export interface ControllerConfig {
     serviceName: string
     paths: ControllerPath[]
 }
+
 export interface ControllerPath {
     method: string
     path: string
-    pathParams?: string[]
-    queryParams?: string[]
+    pathParams?: ParameterWithSchema[]
+    queryParams?: ParameterWithSchema[]
     body?: string
     returnType?: string
 }
@@ -33,6 +37,7 @@ class ControllerFileFactory {
         ['@nestjs/common']: new Set<string>().add('Controller'),
         ['@nestjs/swagger']: new Set<string>().add('ApiTags'),
         ['../models']: new Set<string>(),
+        ['crypto']: new Set<string>(),
         // the service and dto are imported inside the constructor
     }
 
@@ -66,25 +71,41 @@ class ControllerFileFactory {
         }
         if (pathParams) {
             this._imports['@nestjs/common'].add('Param')
+
+            if (pathParams.some((param) => param.schema.format == 'uuid')) {
+                this._imports['crypto'].add('UUID')
+            }
         }
 
         if (queryParams) {
             this._imports['@nestjs/common'].add('Query')
+
+            if (queryParams.some((param) => param.schema.format == 'uuid')) {
+                this._imports['crypto'].add('UUID')
+            }
         }
 
         const baseMethodName = methodNames[method.toUpperCase() as keyof typeof methodNames]
-        const byParamSuffix = pathParams ? `By${pathParams.map(_.capitalize).join()}` : ''
+        const byParamSuffix = pathParams ? `By${pathParams.map(({name}) => _.capitalize(name)).join()}` : ''
         const methodName = `${baseMethodName}${byParamSuffix}`
 
-        const pathParamsArgs = pathParams?.map((param) => `@Param('${param}') ${param}: string`).join(', ') ?? ''
-        const queryParamsArgs = queryParams?.map((param) => `@Query('${param}') ${param}: string`).join(', ') ?? ''
+        const pathParamsArgs =
+            pathParams
+                ?.map((p) => `@Param('${p.name}') ${p.name}: ${getMappedSwaggerType(p.schema.type, p.schema.format)}`)
+                .join(', ') ?? ''
+        const queryParamsArgs =
+            queryParams
+                ?.map((p) => `@Query('${p.name}') ${p.name}: ${getMappedSwaggerType(p.schema.type, p.schema.format)}`)
+                .join(', ') ?? ''
         const bodyParamsArgs = body ? `@Body() body: ${body}` : ''
 
         const pathWithoutRoute = this.getPathWithoutFirstRoute(path)
 
         const decoratorParams = pathWithoutRoute ? `'${pathWithoutRoute.replace(/{(\w+)}/g, ':$1')}'` : ''
         const argsParams = _.compact([pathParamsArgs, queryParamsArgs, bodyParamsArgs]).join(', ')
-        const serviceParams = _.compact([pathParams, queryParams, body ? 'body' : ''].flat()).join(', ')
+        const serviceParams = _.compact(
+            [_.map(pathParams, 'name'), _.map(queryParams, 'name'), body ? 'body' : ''].flat(),
+        ).join(', ')
 
         return `    @${_.capitalize(method)}(${decoratorParams})
         ${methodName}(${argsParams}): Promise<${returnType ?? 'void'}> {
@@ -116,7 +137,7 @@ class ControllerFileFactory {
 
         return `
             @ApiTags('${this.serviceName}')
-            @Controller('${this.serviceName}')
+            @Controller('${this.serviceName.toLowerCase()}')
             export class ${cServiceName}Controller {
             constructor(private readonly ${this.serviceName}Service: ${cServiceName}Service) {}
         `

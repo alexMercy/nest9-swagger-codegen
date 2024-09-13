@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as prettier from 'prettier'
+import { suffixes } from './constants'
 
 const defaultPrettierOptions: prettier.Options = {
     trailingComma: 'all',
@@ -29,5 +30,6 @@ export const generateTsFile = async (
     })
     const servicePath = path.join(rootPath, `${lcFolder ?? lcServiceName}`)
     fs.ensureDirSync(servicePath)
-    fs.writeFileSync(path.join(servicePath, `${lcServiceName}.${type}.ts`), formattedContent)
+    const extension = type.includes(suffixes.DRAFT) ? 'ts_' : 'ts'
+    fs.writeFileSync(path.join(servicePath, `${lcServiceName}.${type}.${extension}`), formattedContent)
 }

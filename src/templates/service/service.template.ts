@@ -1,5 +1,8 @@
 import { methodNames } from '@utils/constants'
 import { ControllerPath } from '../controller/controller.template'
+import { ParameterWithSchema } from '@templates/lib'
+import { getMappedSwaggerType } from '@utils/getMappedSwaggerType'
+
 import * as _ from 'lodash'
 
 type addServiceOperationProps = ControllerPath & {
@@ -25,6 +28,7 @@ ${dtosImports}
 //${entitiesImports}
 //} from './${serviceName}.entity'
 // import { Repository } from 'typeorm'
+// import { UUID } from 'crypto'
 
 @Injectable()
 export class ${cServiceName}Service {
@@ -53,11 +57,18 @@ const addServiceOperation = ({
     }
 
     const baseMethodName = methodNames[method.toUpperCase() as keyof typeof methodNames]
-    const byParamSuffix = pathParams ? `By${pathParams.map(_.capitalize).join()}` : ''
+    const byParamSuffix = pathParams ? `By${pathParams.map((pp) => _.capitalize(pp.name)).join()}` : ''
     const methodName = `${baseMethodName}${byParamSuffix}`
 
-    const pathParamsArgs = pathParams?.map((param) => `${param}: string`).join(', ') ?? ''
-    const queryParamsArgs = queryParams?.map((param) => `${param}: string`).join(', ') ?? ''
+    const getParamsWithTypeString = function (params?: ParameterWithSchema[]): string {
+        return (
+            params?.map((pp) => `${pp.name}: ${getMappedSwaggerType(pp.schema.type, pp.schema.format)}`).join(', ') ??
+            ''
+        )
+    }
+
+    const pathParamsArgs = getParamsWithTypeString(pathParams)
+    const queryParamsArgs = getParamsWithTypeString(queryParams)
     const bodyParamsArgs = body ? `body: ${body}` : ''
 
     const argsParams = _.compact([pathParamsArgs, queryParamsArgs, bodyParamsArgs]).join(', ')
