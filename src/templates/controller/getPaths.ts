@@ -16,11 +16,12 @@ export const getPaths = (
 
     if (parameters) {
         for (const param of parameters) {
+           const { name, schema } = param
             if (param.in === paramTypes.PATH) {
-                pathParams.push({ name: param.name, schema: param.schema })
+                pathParams.push({ name, schema})
             }
             if (param.in == paramTypes.QUERY) {
-                queryParams.push({ name: param.name, schema: param.schema })
+                queryParams.push({ name, schema })
             }
         }
     }
