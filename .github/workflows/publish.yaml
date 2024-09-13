@@ -1,28 +1,28 @@
 name: Publish Package to npmjs
 on:
-  release:
-    types: [published]
+    release:
+        types: [published]
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    env:
-      NODE_AUTH_TOKEN: ${{ secrets.PAT }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          registry-url: 'https://registry.npmjs.org'
-      - run: npm i
-      - run: git config --global user.name "${{ github.actor }}"
-      - run: git config --global user.email "github-action-${{ github.actor }}@users.noreply.github.com"
-      - run: git add . && git commit -am "version ${{ github.event.release.tag_name }}"
-      - run: npm version ${{ github.event.release.tag_name }}
-      - run: npm run build
-      - run: git checkout -b main
-      - run: git push --set-upstream origin main
-      - run: npm publish --provenance --access public
-       
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: '20.x'
+                  registry-url: 'https://registry.npmjs.org'
+            - run: npm i
+            - run: |
+                  git config --global user.name "${{ github.actor }}"
+                  git config --global user.email "github-action-${{ github.actor }}@users.noreply.github.com"
+            - run: |
+                  npm version ${{ github.events.inputs.version }}
+                  git push origin main
+                  git push origin v${{ github.events.inputs.version }}
+            - run: npm run build
+            - run: npm publish --provenance --access public
+        env:
+            NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
