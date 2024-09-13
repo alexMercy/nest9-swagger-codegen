@@ -21,9 +21,9 @@ jobs:
                   git config --global user.name "${{ github.actor }}"
                   git config --global user.email "github-action-${{ github.actor }}@users.noreply.github.com"
             - run: |
-                  npm version ${{ github.events.inputs.version }}
+                  npm version ${{ inputs.version }}
                   git push origin main
-                  git push origin v${{ github.events.inputs.version }}
+                  git push origin v${{ inputs.version }}
             - run: npm run build
             - run: npm publish --provenance --access public
         env:
