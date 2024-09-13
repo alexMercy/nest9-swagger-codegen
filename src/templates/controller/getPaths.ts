@@ -10,8 +10,16 @@ export const getPaths = (
     serviceName: string,
 ) => {
     const { parameters, requestBody, responses } = data
-    const pathParams = parameters?.filter((param) => param.in === paramTypes.PATH).map(({ name }) => name)
-    const queryParams = parameters?.filter((param) => param.in === paramTypes.QUERY).map(({ name }) => name)
+    const pathParamsSchema = parameters
+        ?.filter((param) => param.in === paramTypes.PATH)
+        .map(({ name, schema }) => {
+            return { name: name, schema: schema }
+        })
+    const queryParams = parameters
+        ?.filter((param) => param.in === paramTypes.QUERY)
+        .map(({ name, schema }) => {
+            return { name: name, schema: schema }
+        })
     const cfg = controllersCfg.find((cfg) => cfg.serviceName === serviceName)
 
     const returnType: any = Object.entries(responses).filter(([statusCode]) => /^2\d{2}$/.test(statusCode))[0][1]
@@ -30,7 +38,7 @@ export const getPaths = (
     const crudPath: ControllerPath = {
         method,
         path: route,
-        pathParams: pathParams?.length ? pathParams : undefined,
+        pathParams: pathParamsSchema?.length ? pathParamsSchema : undefined,
         queryParams: queryParams?.length ? queryParams : undefined,
         body: requestBody?.content['application/json'].schema.refType,
         returnType: getReturnType(),

@@ -1,17 +1,25 @@
 import { methodNames, suffixes } from '@utils/constants'
 import { generateTsFile } from '@utils/generateTsFile'
 import { getFileImports } from '@utils/getFileImports'
+import { Schema } from '@swaggertypes/shared.types'
 import * as _ from 'lodash'
+import { getMappedSwaggerType } from '@utils/getMappedSwaggerType'
 
 export interface ControllerConfig {
     serviceName: string
     paths: ControllerPath[]
 }
+
+export interface ParameterWithSchema {
+    name: string
+    schema: Schema
+}
+
 export interface ControllerPath {
     method: string
     path: string
-    pathParams?: string[]
-    queryParams?: string[]
+    pathParams?: ParameterWithSchema[]
+    queryParams?: ParameterWithSchema[]
     body?: string
     returnType?: string
 }
@@ -33,6 +41,7 @@ class ControllerFileFactory {
         ['@nestjs/common']: new Set<string>().add('Controller'),
         ['@nestjs/swagger']: new Set<string>().add('ApiTags'),
         ['../models']: new Set<string>(),
+        ['crypto']: new Set<string>(),
         // the service and dto are imported inside the constructor
     }
 
@@ -66,25 +75,55 @@ class ControllerFileFactory {
         }
         if (pathParams) {
             this._imports['@nestjs/common'].add('Param')
+
+            if (
+                _.some(pathParams, function (param) {
+                    return param.schema.format == 'uuid'
+                })
+            ) {
+                this._imports['crypto'].add('UUID')
+            }
         }
 
         if (queryParams) {
             this._imports['@nestjs/common'].add('Query')
+
+            if (
+                _.some(queryParams, function (param) {
+                    return param.schema.format == 'uuid'
+                })
+            ) {
+                this._imports['crypto'].add('UUID')
+            }
         }
 
         const baseMethodName = methodNames[method.toUpperCase() as keyof typeof methodNames]
-        const byParamSuffix = pathParams ? `By${pathParams.map(_.capitalize).join()}` : ''
+        const byParamSuffix = pathParams ? `By${pathParams.map((pp) => _.capitalize(pp.name)).join()}` : ''
         const methodName = `${baseMethodName}${byParamSuffix}`
 
-        const pathParamsArgs = pathParams?.map((param) => `@Param('${param}') ${param}: string`).join(', ') ?? ''
-        const queryParamsArgs = queryParams?.map((param) => `@Query('${param}') ${param}: string`).join(', ') ?? ''
+        const pathParamsArgs =
+            pathParams
+                ?.map(
+                    (param) =>
+                        `@Param('${param.name}') ${param.name}: ${getMappedSwaggerType(param.schema.type, param.schema.format)}`,
+                )
+                .join(', ') ?? ''
+        const queryParamsArgs =
+            queryParams
+                ?.map(
+                    (param) =>
+                        `@Query('${param.name}') ${param.name}: ${getMappedSwaggerType(param.schema.type, param.schema.format)}`,
+                )
+                .join(', ') ?? ''
         const bodyParamsArgs = body ? `@Body() body: ${body}` : ''
 
         const pathWithoutRoute = this.getPathWithoutFirstRoute(path)
 
         const decoratorParams = pathWithoutRoute ? `'${pathWithoutRoute.replace(/{(\w+)}/g, ':$1')}'` : ''
         const argsParams = _.compact([pathParamsArgs, queryParamsArgs, bodyParamsArgs]).join(', ')
-        const serviceParams = _.compact([pathParams, queryParams, body ? 'body' : ''].flat()).join(', ')
+        const serviceParams = _.compact(
+            [_.map(pathParams, 'name'), _.map(queryParams, 'name'), body ? 'body' : ''].flat(),
+        ).join(', ')
 
         return `    @${_.capitalize(method)}(${decoratorParams})
         ${methodName}(${argsParams}): Promise<${returnType ?? 'void'}> {
@@ -116,7 +155,7 @@ class ControllerFileFactory {
 
         return `
             @ApiTags('${this.serviceName}')
-            @Controller('${this.serviceName}')
+            @Controller('${this.serviceName.toLowerCase()}')
             export class ${cServiceName}Controller {
             constructor(private readonly ${this.serviceName}Service: ${cServiceName}Service) {}
         `
