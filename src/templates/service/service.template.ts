@@ -60,12 +60,12 @@ const addServiceOperation = ({
     const byParamSuffix = pathParams ? `By${pathParams.map((pp) => _.capitalize(pp.name)).join()}` : ''
     const methodName = `${baseMethodName}${byParamSuffix}`
 
-    const getParamsWithTypeString = function (pp: ParameterWithSchema): string {
-        return `${pp.name}: ${getMappedSwaggerType(pp.schema.type, pp.schema.format)}`
+    const getParamsWithTypeString = function (params?: ParameterWithSchema[]): string {
+        return  params?.map((pp) => `${pp.name}: ${getMappedSwaggerType(pp.schema.type, pp.schema.format)}`).join(', ') ?? ''
     }
-
-    const pathParamsArgs = pathParams?.map((pp) => getParamsWithTypeString(pp)).join(', ') ?? ''
-    const queryParamsArgs = queryParams?.map((pp) => getParamsWithTypeString(pp)).join(', ') ?? ''
+ 
+    const pathParamsArgs = getParamsWithTypeString(pathParams)
+    const queryParamsArgs = getParamsWithTypeString(queryParams)
     const bodyParamsArgs = body ? `body: ${body}` : ''
 
     const argsParams = _.compact([pathParamsArgs, queryParamsArgs, bodyParamsArgs]).join(', ')
