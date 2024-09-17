@@ -13,13 +13,13 @@ jobs:
               with:
                   node-version: '20.x'
                   registry-url: 'https://registry.npmjs.org'
-            - run: npm ci
+            - run: npm i
             - run: |
                   git config --global user.name "${{ github.actor }}"
                   git config --global user.email "github-action-${{ github.actor }}@users.noreply.github.com"
             - run: |
                   git status
-                  npm version ${{ inputs.version }}
+                  npm version -f ${{ inputs.version }}
                   git push origin main
                   git push origin v${{ inputs.version }}
             - run: npm run build
