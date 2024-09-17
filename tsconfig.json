@@ -17,6 +17,7 @@
       "@templates/*": ["templates/*"],
       "@utils/*": ["utils/*"],
       "@utils": ["utils"],
+      "@coretypes/*": ["core/types/*"],
     },
     "incremental": true,
     "skipLibCheck": true,

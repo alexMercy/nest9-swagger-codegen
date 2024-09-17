@@ -1,7 +1,7 @@
 import { Operation } from '@swaggertypes/paths.types'
 import { paramTypes } from '@utils/constants'
 import { ControllerConfig, type ControllerPath } from './controller.template'
-import { ParameterWithSchema } from '@templates/lib'
+import { ParameterWithSchema } from '@coretypes/derived.types'
 
 export const getPaths = (
     route: string,
@@ -16,12 +16,12 @@ export const getPaths = (
 
     if (parameters) {
         for (const param of parameters) {
-            const { name, schema } = param
+            const { name, schema, required } = param
             if (param.in === paramTypes.PATH) {
-                pathParams.push({ name, schema })
+                pathParams.push({ name, schema, required })
             }
             if (param.in == paramTypes.QUERY) {
-                queryParams.push({ name, schema })
+                queryParams.push({ name, schema, required })
             }
         }
     }
