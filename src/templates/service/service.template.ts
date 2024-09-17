@@ -1,6 +1,6 @@
 import { methodNames } from '@utils/constants'
 import { ControllerPath } from '../controller/controller.template'
-import { ParameterWithSchema } from '@templates/lib'
+import { ParameterWithSchema } from '@coretypes/derived.types'
 import { getMappedSwaggerType } from '@utils/getMappedSwaggerType'
 
 import * as _ from 'lodash'

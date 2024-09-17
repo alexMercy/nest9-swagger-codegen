@@ -2,9 +2,10 @@ import { methodNames, suffixes } from '@utils/constants'
 import { generateTsFile } from '@utils/generateTsFile'
 import { getFileImports } from '@utils/getFileImports'
 import { getMappedSwaggerType } from '@utils/getMappedSwaggerType'
-import { ParameterWithSchema } from '@templates/lib'
+import { ParameterWithSchema } from '@coretypes/derived.types'
 
 import * as _ from 'lodash'
+import { getOptionalParameterRepresentation } from '@utils/getParameterPropertiesRepresentation'
 
 export interface ControllerConfig {
     serviceName: string
@@ -79,6 +80,7 @@ class ControllerFileFactory {
 
         if (queryParams) {
             this._imports['@nestjs/common'].add('Query')
+            this._imports['@nestjs/swagger'].add('ApiQuery')
 
             if (queryParams.some((param) => param.schema.format == 'uuid')) {
                 this._imports['crypto'].add('UUID')
@@ -86,7 +88,7 @@ class ControllerFileFactory {
         }
 
         const baseMethodName = methodNames[method.toUpperCase() as keyof typeof methodNames]
-        const byParamSuffix = pathParams ? `By${pathParams.map(({name}) => _.capitalize(name)).join()}` : ''
+        const byParamSuffix = pathParams ? `By${pathParams.map(({ name }) => _.capitalize(name)).join()}` : ''
         const methodName = `${baseMethodName}${byParamSuffix}`
 
         const pathParamsArgs =
@@ -95,21 +97,33 @@ class ControllerFileFactory {
                 .join(', ') ?? ''
         const queryParamsArgs =
             queryParams
-                ?.map((p) => `@Query('${p.name}') ${p.name}: ${getMappedSwaggerType(p.schema.type, p.schema.format)}`)
+                ?.map(
+                    (p) =>
+                        `@Query('${p.name}') ${p.name}${getOptionalParameterRepresentation(p)}: ${getMappedSwaggerType(p.schema.type, p.schema.format)}`,
+                )
                 .join(', ') ?? ''
+        const methodDecoratorQueryParams =
+            queryParams
+                ?.map(
+                    (p) =>
+                        `@ApiQuery({name: "${p.name}", required: ${p.required ? p.required : false}, schema: ${JSON.stringify(p.schema)}}) `,
+                )
+                .join('\r\n') ?? ''
+
         const bodyParamsArgs = body ? `@Body() body: ${body}` : ''
 
         const pathWithoutRoute = this.getPathWithoutFirstRoute(path)
 
-        const decoratorParams = pathWithoutRoute ? `'${pathWithoutRoute.replace(/{(\w+)}/g, ':$1')}'` : ''
+        const methodDecoratorPathParams = pathWithoutRoute ? `'${pathWithoutRoute.replace(/{(\w+)}/g, ':$1')}'` : ''
         const argsParams = _.compact([pathParamsArgs, queryParamsArgs, bodyParamsArgs]).join(', ')
         const serviceParams = _.compact(
             [_.map(pathParams, 'name'), _.map(queryParams, 'name'), body ? 'body' : ''].flat(),
         ).join(', ')
 
-        return `    @${_.capitalize(method)}(${decoratorParams})
+        return `    @${_.capitalize(method)}(${methodDecoratorPathParams})
+                    ${methodDecoratorQueryParams}
         ${methodName}(${argsParams}): Promise<${returnType ?? 'void'}> {
-            return this.${this.serviceName}Service.${methodName}(${serviceParams})
+            return this.${_.lowerFirst(this.serviceName)}Service.${methodName}(${serviceParams})
         }`
     }
 
@@ -139,7 +153,7 @@ class ControllerFileFactory {
             @ApiTags('${this.serviceName}')
             @Controller('${this.serviceName.toLowerCase()}')
             export class ${cServiceName}Controller {
-            constructor(private readonly ${this.serviceName}Service: ${cServiceName}Service) {}
+            constructor(private readonly ${_.lowerFirst(this.serviceName)}Service: ${cServiceName}Service) {}
         `
     }
 
