@@ -89,7 +89,7 @@ class ControllerFileFactory {
         }
 
         const baseMethodName = methodNames[method.toUpperCase() as keyof typeof methodNames]
-        const byParamSuffix = pathParams ? `By${pathParams.map(({ name }) => _.capitalize(name)).join()}` : ''
+        const byParamSuffix = pathParams ? `By${pathParams.map(({ name }) => _.capitalize(name)).join('By')}` : ''
         const methodName = `${baseMethodName}${byParamSuffix}`
 
         const pathParamsArgs =

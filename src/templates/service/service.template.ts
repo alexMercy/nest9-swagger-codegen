@@ -57,7 +57,7 @@ const addServiceOperation = ({
     }
 
     const baseMethodName = methodNames[method.toUpperCase() as keyof typeof methodNames]
-    const byParamSuffix = pathParams ? `By${pathParams.map((pp) => _.capitalize(pp.name)).join()}` : ''
+    const byParamSuffix = pathParams ? `By${pathParams.map((pp) => _.capitalize(pp.name)).join('By')}` : ''
     const methodName = `${baseMethodName}${byParamSuffix}`
 
     const getParamsWithTypeString = function (params?: ParameterWithSchema[]): string {
