@@ -5,6 +5,7 @@ import { getMappedSwaggerType } from '@utils/getMappedSwaggerType'
 import { ParameterWithSchema } from '@coretypes/derived.types'
 
 import * as _ from 'lodash'
+import { plural } from 'pluralize'
 import { getOptionalParameterRepresentation } from '@utils/getParameterPropertiesRepresentation'
 
 export interface ControllerConfig {
@@ -151,7 +152,7 @@ class ControllerFileFactory {
 
         return `
             @ApiTags('${this.serviceName}')
-            @Controller('${this.serviceName.toLowerCase()}')
+            @Controller('${plural(this.serviceName.toLowerCase())}')
             export class ${cServiceName}Controller {
             constructor(private readonly ${_.lowerFirst(this.serviceName)}Service: ${cServiceName}Service) {}
         `
