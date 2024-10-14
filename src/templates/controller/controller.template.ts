@@ -5,6 +5,7 @@ import { getMappedSwaggerType } from '@utils/getMappedSwaggerType'
 import { ParameterWithSchema } from '@coretypes/derived.types'
 
 import * as _ from 'lodash'
+import { plural } from 'pluralize'
 import { getOptionalParameterRepresentation } from '@utils/getParameterPropertiesRepresentation'
 
 export interface ControllerConfig {
@@ -149,9 +150,15 @@ class ControllerFileFactory {
     private getImportsAndClass = () => {
         const cServiceName = _.capitalize(this.serviceName)
 
+        //FIXME Controller prefix MUST be generated based on the PATH in spec and not on the
+        // Tag (serviceName) taken from spec as it is now.
         return `
+
+            // FIXME Controller prefix MUST be generated based on the PATH in spec and not on the
+            // Tag (serviceName) taken from spec as it is now.
+
             @ApiTags('${this.serviceName}')
-            @Controller('${this.serviceName.toLowerCase()}')
+            @Controller('${plural(this.serviceName.toLowerCase())}')
             export class ${cServiceName}Controller {
             constructor(private readonly ${_.lowerFirst(this.serviceName)}Service: ${cServiceName}Service) {}
         `
