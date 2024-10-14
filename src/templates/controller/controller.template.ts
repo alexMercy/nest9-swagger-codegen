@@ -150,7 +150,13 @@ class ControllerFileFactory {
     private getImportsAndClass = () => {
         const cServiceName = _.capitalize(this.serviceName)
 
+        //FIXME Controller prefix MUST be generated based on the PATH in spec and not on the
+        // Tag (serviceName) taken from spec as it is now.
         return `
+
+            // FIXME Controller prefix MUST be generated based on the PATH in spec and not on the
+            // Tag (serviceName) taken from spec as it is now.
+
             @ApiTags('${this.serviceName}')
             @Controller('${plural(this.serviceName.toLowerCase())}')
             export class ${cServiceName}Controller {
